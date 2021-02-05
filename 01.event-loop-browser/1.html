@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<script>
+  document.body.style.background = 'red';
+  console.log(1);
+
+  // 微任务执行完成之后才会更新ui,此时body的颜色被设置为黄色
+  // Promise.resolve().then(() => {
+  //   console.log(2);
+  //   document.body.style.background = 'yellow';
+  // });
+
+  // 宏任务执行后，更改颜色，并不会每次都渲染ui。
+  // 在页面上不停刷新，偶尔会看到红色闪烁
+  setTimeout(() => {
+    document.body.style.background = 'yellow';
+  });
+  console.log(3);
+</script>
+</body>
+</html>
