@@ -8,6 +8,24 @@
   <title>Document</title>
 </head>
 <body>
+<script>
+  Promise.resolve().then(() => {
+    console.log('Promise1');
+    setTimeout(() => {
+      console.log('setTimeout2');
+    });
+  });
 
+  setTimeout(() => {
+    console.log('setTimeout1');
+    Promise.resolve().then(() => {
+      console.log('Promise2');
+    });
+  });
+  //  Promise1
+  //  setTimeout1
+  //  Promise2
+  //  setTimeout2
+</script>
 </body>
 </html>
