@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<button id="button">点我啊</button>
+</body>
+<script>
+  const button = document.getElementById('button');
+  // 事件监听是宏任务
+  // 1. 在执行宏任务时添加了微任务
+  // 2. 然后会执行所有的微任务
+  // 3. 然后再继续执行宏任务
+  button.addEventListener('click', () => {
+    console.log('listener 1');
+    Promise.resolve().then(() => {
+      console.log('micro task1');
+    });
+  });
+
+  button.addEventListener('click', () => {
+    console.log('listener 2');
+    Promise.resolve().then(() => {
+      console.log('micro task2');
+    });
+  });
+
+  // 手动触发事件时，对应的监听器函数会同步执行
+  // button.click();
+</script>
+</html>
