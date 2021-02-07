@@ -21,3 +21,27 @@ process:
 * [nextTick](https://devdocs.io/node~14_lts/process#process_process_nexttick_callback_args)
 
 commander
+
+module:
+
+* module.exports
+* require
+
+核心模块：
+
+* fs
+  * fs.existsSync
+* path
+  * path.resolve
+  * path.join
+  * path.extname
+  * path.relative
+  * path.dirname
+* vm
+  * runInThisContext
+
+自定义模块：
+
+第三方模块：
+
+
