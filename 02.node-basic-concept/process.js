@@ -19,7 +19,7 @@
 
 // process.nextTick adds callback to the 'next tick queue'.
 // This queue  is fully drained after the current operation on JavaScript stack run to completion and before the event loop is allowed to continue
-process.nextTick(() => {
-  console.log('nextTick');
-});
+// process.nextTick(() => {
+//   console.log('nextTick');
+// });
 
