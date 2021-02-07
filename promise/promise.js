@@ -34,12 +34,12 @@ class MyPromise {
 
   // .then执行后会返回一个新的Promise
   then (onFulfilled, onRejected) {
-    return new Promise((resolve, reject) => {
+    const promise2 = new Promise((resolve, reject) => {
       if (this.state === RESOLVED) {
         setTimeout(() => {
           try {
             // 如果当前Promise then 执行成功，并且没有明确的返回一个失败的Promise，那么它的返回值执行下一个Promise的resolve方法
-            const r = onFulfilled(this.value);
+            const x = onFulfilled(this.value);
           } catch (e) { // executor 或者 .then中传入的回调执行出错，Promise变为失败态
             // 如果当前的Promise then onFulfilled方法执行出错了，就会执行下一个Promise的reject方法
             reject(e);
@@ -49,7 +49,7 @@ class MyPromise {
       if (this.state === REJECTED) {
         setTimeout(() => {
           try {
-            const r = onRejected(this.reason);
+            const x = onRejected(this.reason);
           } catch (e) {
             reject(e);
           }
@@ -58,20 +58,59 @@ class MyPromise {
       if (this.state === PENDING) { // 等resolve或reject执行后才能确定状态
         this.resolvedFns.push(() => {
           try {
-            const r = onFulfilled(this.value);
+            const x = onFulfilled(this.value);
           } catch (e) {
             reject(e);
           }
         });
         this.rejectedFns.push(() => {
           try {
-            const r = onRejected(this.reason);
+            const x = onRejected(this.reason);
           } catch (e) {
             reject(e);
           }
         });
       }
     });
+    return promise2;
+  }
+
+}
+
+function resolvePromise (promise2, x, resolve, reject) {
+  // https://github.com/promises-aplus/promises-tests/blob/4786505fcb0cafabc5f5ce087e1df86358de2da6/lib/tests/2.3.1.js#L14-L21
+  if (promise2 === x) {
+    new TypeError('Appear chain call!');
+  }
+  if (x instanceof Promise) { // 这样写可能有问题
+    x.then((y) => {
+      resolvePromise(promise2, y, resolve, reject);
+    }, (r) => {
+      reject(r);
+    });
+  }
+  // && 优先级 高于 ||
+  if (x !== null && typeof x === 'object' || typeof x === 'function') {
+    try {
+      const then = x.then;
+      if (typeof then === 'function') {
+        try {
+          then.call(x, (y) => {
+            resolvePromise(promise2, y, resolve, reject);
+          }, (r) => {
+            reject(r);
+          });
+        } catch (e) {
+          reject(e);
+        }
+      } else {
+        resolve(x);
+      }
+    } catch (e) {
+      reject(e);
+    }
+  } else {
+    resolve(x);
   }
 }
 
