@@ -27,6 +27,6 @@
 
 调度顺序：
 
-* **3.html**
+* [**`demo02.js`**](https://github.com/wangkaiwd/node-core/blob/main/01.event-loop-browser/demo02.js)
 
 

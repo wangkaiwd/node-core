@@ -12,8 +12,8 @@
 process:
 
 * [platform](https://devdocs.io/node~14_lts/process#process_process_platform)
-* [chdir](https://devdocs.io/node~14_lts/process#process_process_chdir_directory)
 * [cwd](https://devdocs.io/node~14_lts/process#process_process_cwd/)
+* [chdir](https://devdocs.io/node~14_lts/process#process_process_chdir_directory)
 * [env](https://devdocs.io/node~14_lts/process#process_process_env)
   * windows: set, mac: export
   * cross-env
