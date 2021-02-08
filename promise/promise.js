@@ -97,6 +97,16 @@ class MyPromise {
     return promise2;
   }
 
+  catch (fn) {
+    // 不是函数的参数将会被处理为一个函数
+    // (val) => val
+    return this.then(null, fn);
+  }
+
+  // 成功或失败后都会执行的逻辑，并且返回的Promise的状态是前一个Promise的状态
+  finally () {
+    return this;
+  }
 }
 
 /**
