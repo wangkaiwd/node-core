@@ -1,5 +1,2 @@
-// resolve reject finally
-// all race allSettled
-// any ?
-
-const Promise = require('./promise');
+// resolve reject all race allSettled any
+// catch finally then(Promise/A+)
