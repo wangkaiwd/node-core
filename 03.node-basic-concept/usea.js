@@ -1,4 +1,5 @@
 const fs = require('fs');
+const vm = require('vm');
 const path = require('path');
 
 // 伪代码，如果没有加文件后缀，默认会以.js, .json的顺序去查找
@@ -28,8 +29,22 @@ Module.prototype.load = function () {
   Module._extensions[ext](this);
 };
 Module._extensions = {};
-Module._extensions['.js'] = function (module) {
 
+function wrapper (code) {
+  return `
+    (function(module,exports,require,__dirname,__filename) {
+      ${code}
+    })
+  `;
+}
+
+Module._extensions['.js'] = function (module) {
+  let code = fs.readFileSync(module.id, 'utf8');
+  code = wrapper(code);
+  const fn = vm.runInThisContext(code);
+  // 将exports和module.exports指向同一个引用地址(堆内存)
+  const exports = module.exports;
+  fn.call(exports, module, exports, myRequire, module.path, module.id);
 };
 // 读取json文件，并通过JSON.parse处理为js对象赋值给module.exports
 Module._extensions['.json'] = function (module) {
@@ -58,5 +73,5 @@ function myRequire (filename) {
   return module.exports;
 }
 
-const a = myRequire('./a.json');
+const a = myRequire('./a');
 console.log(a);
