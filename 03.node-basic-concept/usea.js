@@ -17,16 +17,24 @@ const path = require('path');
 // 6. Module._extensions: 使用策略模式来分别处理不同后缀的文件
 // 7. module._compile(compiledWrapper: 读取文件，用函数包裹读取到的字符串，并通过runInThisContext来执行)
 
-function Module () {
-
+function Module (filename) {
+  this.id = filename;
+  this.path = path.dirname(filename);
+  this.exports = {}; // 之后会在每个模块内，用户通过Module的实例module.exports来为其赋值
 }
 
+Module.prototype.load = function () {
+  const ext = path.extname(this.id);
+  Module._extensions[ext](this);
+};
 Module._extensions = {};
-Module._extensions['.js'] = function () {
+Module._extensions['.js'] = function (module) {
 
 };
-Module._extensions['.json'] = function () {
-
+// 读取json文件，并通过JSON.parse处理为js对象赋值给module.exports
+Module._extensions['.json'] = function (module) {
+  const json = fs.readFileSync(module.id, 'utf8');
+  module.exports = JSON.parse(json);
 };
 // 将路径处理为绝对路径 并且添加文件后缀
 Module._resolveFilename = function (filename) {
@@ -40,12 +48,15 @@ Module._resolveFilename = function (filename) {
       return absPathWithPostfix;
     }
   }
-  throw 'Can not find module!';
+  throw new Error('Can not find module!');
 };
 
 function myRequire (filename) {
   filename = Module._resolveFilename(filename);
-  console.log('filename', filename);
+  const module = new Module(filename);
+  module.load();
+  return module.exports;
 }
 
-const a = myRequire('./a');
+const a = myRequire('./a.json');
+console.log(a);
