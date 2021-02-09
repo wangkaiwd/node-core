@@ -48,8 +48,8 @@ implement commonjs:
 
 * source code debug
 * implement by myself
-
-step:
+* [cycles](https://nodejs.org/api/modules.html#modules_cycles)
+  step:
 
 * cache(don't again execute code)
 

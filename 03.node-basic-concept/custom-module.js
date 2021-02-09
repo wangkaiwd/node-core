@@ -16,12 +16,13 @@ Module._extensions = {};
 
 function wrapper (code) {
   return `
-    (function(module,exports,require,__dirname,__filename) {
+    (function(module,exports,myRequire,__dirname,__filename) {
       ${code}
     })
   `;
 }
 
+Module._cache = {};
 Module._extensions['.js'] = function (module) {
   let code = fs.readFileSync(module.id, 'utf8');
   code = wrapper(code);
@@ -47,12 +48,23 @@ Module._resolveFilename = function (filename) {
       return absPathWithPostfix;
     }
   }
+  console.log('absPath', absPath, '----');
   throw new Error('Can not find module!');
 };
 
 function myRequire (filename) {
+  console.log('filename', filename);
   filename = Module._resolveFilename(filename);
-  const module = new Module(filename);
+  // 1. 执行usea.js
+  // 2. require a.js
+  // 3. 执行 a.js
+  // 4. require usea.js
+  // 5. 执行usea.js
+  if (Module._cache[filename]) {
+    return Module._cache[filename].exports;
+  }
+  // 在更改module.exports时，也会将缓存的模块一块更新。之后再次读取相同文件，便会返回缓存中的module.exports
+  const module = Module._cache[filename] = new Module(filename);
   module.load();
   return module.exports;
 }

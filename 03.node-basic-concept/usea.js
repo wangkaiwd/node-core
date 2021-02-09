@@ -1,7 +1,11 @@
 const myRequire = require('./custom-module');
 
 const a = myRequire('./a');
-console.log(a);
+// const a1 = require('./a');
+// const a2 = require('./a');
+// const a3 = require('./a');
+// console.log(a, a.add(1, 2));
+console.log('usea', a);
 
 // 伪代码，如果没有加文件后缀，默认会以.js, .json的顺序去查找
 // const a = (function (module, exports, require, __dirname, __filename) {
@@ -22,3 +26,6 @@ console.log(a);
 // 问题：
 //  1. 模块缓存
 //  2. 递归引用
+
+// 将module.exports指向了一个新的引用，所以在另一个模块中会拿不到
+module.exports.x = 'x';
