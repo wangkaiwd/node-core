@@ -97,6 +97,23 @@ class MyPromise {
     return promise2;
   }
 
+  catch (fn) {
+    // 不是函数的参数将会被处理为一个函数
+    // (val) => val
+    return this.then(null, fn);
+  }
+
+  // 成功或失败后都会执行的逻辑，并且返回的Promise的状态是前一个Promise的状态
+  finally (onFinally) {
+    return this.then((v) => {
+      onFinally();
+      return v;
+    }, (r) => {
+      onFinally();
+      throw r;
+    });
+  }
+
 }
 
 /**
@@ -144,4 +161,75 @@ function resolvePromise (promise2, x, resolve, reject) {
   }
 }
 
+MyPromise.resolve = function (value) {
+  return new MyPromise((resolve) => {
+    resolve(value); // resolve内部也会调用reject: https://github.com/wangkaiwd/js-deep/blob/4b1557ac406db3b9d384280bac42c0fddf245103/advanced/async-2/promiseOthers.js#L19
+  });
+};
+
+MyPromise.reject = function (reason) {
+  return new MyPromise((resolve, reject) => {
+    reject(reason);
+  });
+};
+
+MyPromise.all = function (promises) {
+  return new MyPromise((resolve, reject) => {
+    const result = [];
+    let count = 0;
+    for (let i = 0; i < promises.length; i++) { // 这里的i不能决定执行的是第几个
+      // 这里需要注意：Promise.resolve如果处理的是一个失败状态的Promise的话
+      // 当使用let时，浏览器会自己帮我们创建一个函数，并将i作为参数传入，保证函数中用到的时当前遍历时传入的i
+      // 具体可以查看babel的转换过程
+      const promise = Promise.resolve(promises[i]);
+      promise.then((value) => {
+        count++;
+        // i是获取的当前作用域中的i
+        // 每次循环时都会开辟一个单独的作用域来处理逻辑
+        result[i] = value;
+        if (count === promises.length) {
+          resolve(result);
+        }
+      }, (reason) => { // 有一个拒绝就直接让下一个promise也处于拒绝状态
+        reject(reason);
+      });
+    }
+  });
+};
+// 数组中最先成功或失败的Promise作为之后的Promise的状态
+MyPromise.race = function (promises) {
+  return new MyPromise((resolve, reject) => {
+    for (let i = 0; i < promises.length; i++) {
+      // 这样可以将不是Promise的内容也都统一处理为Promise,防止调用.then方法出错
+      const promise = Promise.resolve(promises[i]);
+      promise.then((value) => { // 这里没有传失败的回调函数，回将其包装成一个函数，并将错误抛给下一个promise
+        resolve(value);
+      }).catch((reason) => {
+        reject(reason);
+      });
+    }
+
+  });
+};
+
+// 返回一个成功的promise，里面包含所有传入的promise成功或失败的信息
+MyPromise.allSettled = function (promises) {
+  return new MyPromise((resolve, reject) => {
+    const result = [];
+    let count = 0;
+    for (let i = 0; i < promises.length; i++) {
+      const promise = Promise.resolve(promises[i]);
+      promise.then((value) => {
+        count++;
+        result[i] = { status: 'resolved', value };
+        if (count === promises.length) {
+          resolve(result);
+        }
+      }, (reason) => {
+        count++;
+        result[i] = { status: 'rejected', reason };
+      });
+    }
+  });
+};
 module.exports = MyPromise;
