@@ -44,4 +44,17 @@ module:
 
 第三方模块：
 
+implement commonjs:
 
+* source code debug
+* implement by myself
+
+step:
+
+* cache(don't again execute code)
+
+find:
+
+* 查找js文件 -> -> json文件 -> 件夹下的index.js文件 -> package.json中的main字段(版本不同可能查找方式会不同)
+* 不是绝对路径或相对路径(非核心模块)回去node_modules下查找
+* 如果当前node_modules找不到会继续向上层node_modules中查找，直到根目录
