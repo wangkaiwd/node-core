@@ -18,3 +18,7 @@ console.log(a);
 // 5. module.load: 加载模块
 // 6. Module._extensions: 使用策略模式来分别处理不同后缀的文件
 // 7. module._compile(compiledWrapper: 读取文件，用函数包裹读取到的字符串，并通过runInThisContext来执行)
+
+// 问题：
+//  1. 模块缓存
+//  2. 递归引用
