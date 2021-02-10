@@ -13,6 +13,7 @@
 
 * on
 * once
+  * **manual off once listener** (add a property for callback function)
 * emit
 * off
 * newListener
