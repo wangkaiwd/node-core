@@ -16,11 +16,12 @@ function demo01 () {
 
 function demo02 () {
   events.once('data', onData);
+  events.off('data', onData);
   events.emit('data', [1, 2, 3]);
   events.emit('data', [1, 2, 3]);
 }
 
-// demo02();
+demo02();
 
 function demo03 () {
   events.on('newListener', (name, listener) => {
@@ -31,4 +32,4 @@ function demo03 () {
   });
 }
 
-demo03();
+// demo03();
