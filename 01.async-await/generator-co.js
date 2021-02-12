@@ -5,10 +5,11 @@ function * read () {
 
   const age = yield fs.readFile(name, 'utf8');
 
-  return 10;
+  return age;
 }
 
-function co (it) {
+function co (gen) {
+  const it = gen();
   return new Promise((resolve, reject) => {
     function step (result) {
       const { value, done } = it.next(result);
@@ -26,7 +27,7 @@ function co (it) {
 
 }
 
-co(read()).then((v) => {
+co(read).then((v) => {
   console.log(v);
 }, (r) => {
   console.log(r);
