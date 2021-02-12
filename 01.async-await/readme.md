@@ -1,5 +1,7 @@
 ## Async Await
 
+use babel convert code to es5 for understand theory
+
 ### generator function
 
 * simple generator demo
@@ -12,3 +14,7 @@ generator function execute order: switch case 配合指针移动来执行每一�
 ### async await
 
 * convert generator function to async await to implement demo again
+
+### question
+
+* [demo04](https://github.com/wangkaiwd/node-core/blob/b54a7dc560dbc4c800d282e9da8d06e9ed46d8b3/02.event-loop-browser/demo04.js)
