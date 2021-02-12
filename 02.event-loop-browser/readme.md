@@ -4,7 +4,9 @@
 * 微任务
 
 执行顺序：  
-先执行执行栈中代码 -> 清空所有微任务 -> 重新渲染页面(不是每次都执行)
+先执行执行栈中代码 -> 清空所有微任务 -> 重新渲染页面(不是每次都执行) -> 一个一个执行宏任务
+
+> 定时器会等到执行时间到达时，才会放到宏任务队列中
 
 ### 进程和线程
 
@@ -25,8 +27,6 @@
 * 宏任务：宿主环境提供的异步方法
 * 微任务：语言本身提供的异步方法
 
-调度顺序：
+### reference materials
 
-* [**`demo02.js`**](https://github.com/wangkaiwd/node-core/blob/main/01.event-loop-browser/demo02.js)
-
-
+* [Event loop: microtasks and macrotasks](https://javascript.info/event-loop)
