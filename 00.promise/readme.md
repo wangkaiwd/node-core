@@ -12,7 +12,7 @@
 * static method
   * resolve
   * reject
-  * all
+  * all(let for loop scope which babel compile to es5)
   * race
   * allSettled
 

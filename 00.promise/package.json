@@ -2,7 +2,7 @@
   "name": "00.promise",
   "version": "1.0.0",
   "description": "### implement simple Promise",
-  "main": "demo01.js",
+  "main": "promise-abort.js",
   "scripts": {
     "test": "promises-aplus-tests ./promise.js"
   },
