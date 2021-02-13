@@ -19,14 +19,15 @@ class MyPromise {
 
   resolve = (value) => {
     if (this.state === PENDING) {
-      this.state = RESOLVED;
-      if (value instanceof Promise) { // value是promise,要继续进行resolve，直到它是一个普通值
+      // 加了递归调用后，测试用例通过不了
+      if (typeof value.then === 'function') { // value是promise,要继续进行resolve，直到它是一个普通值
         value.then((y) => {
           this.resolve(y);
         }, (r) => {
           this.reject(r);
         });
       } else {
+        this.state = RESOLVED;
         this.value = value;
         this.resolvedFns.forEach(fn => fn.call(undefined));
       }
@@ -138,22 +139,26 @@ function resolvePromise (promise2, x, resolve, reject) {
   }
   // && 优先级 高于 ||
   if (x !== null && typeof x === 'object' || typeof x === 'function') { // Promise thenable
+    // 2.3.3.3.3：https://github.com/promises-aplus/promises-tests/blob/4786505fcb0cafabc5f5ce087e1df86358de2da6/lib/tests/2.3.3.js#L357
+    let called = false;
     try {
       const then = x.then;
       if (typeof then === 'function') {
-        try {
-          then.call(x, (y) => {
-            resolvePromise(promise2, y, resolve, reject);
-          }, (r) => {
-            reject(r);
-          });
-        } catch (e) {
-          reject(e);
-        }
+        then.call(x, (y) => {
+          if (called) {return;}
+          called = true;
+          resolvePromise(promise2, y, resolve, reject);
+        }, (r) => {
+          if (called) {return;}
+          called = true;
+          reject(r);
+        });
       } else {
         resolve(x);
       }
     } catch (e) {
+      if (called) {return;}
+      called = true;
       reject(e);
     }
   } else {
@@ -232,4 +237,16 @@ MyPromise.allSettled = function (promises) {
     }
   });
 };
+
+// module.exports = MyPromise;
+
+MyPromise.deferred = function deferred () {
+  const defer = {};
+  defer.promise = new MyPromise((resolve, reject) => {
+    defer.resolve = resolve;
+    defer.reject = reject;
+  });
+  return defer;
+};
+
 module.exports = MyPromise;
