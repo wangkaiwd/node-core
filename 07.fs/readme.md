@@ -10,4 +10,4 @@
 * fs.read
 * fs.write
 * fs.close
-* file descriptor
+* [file descriptor](https://nodejs.org/api/fs.html#fs_file_descriptors)
