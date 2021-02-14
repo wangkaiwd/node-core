@@ -5,8 +5,10 @@
 // 1. new ReadStream
 // 2. normalize options parameters
 // 3. ReadStream 继承 Readable (call + setPrototypeOf)
-// 4. 打开文件：ReadStream.prototype.read
+// 4. _openReadFS：fs.open
+//    stream.read -> Readable.prototype.read -> ReadStream.prototype._read
 // 5. Readable.prototype.read => ReadStream.prototype._read
+// 6. fs.read
 
 const { Readable } = require('stream');
 

@@ -35,6 +35,8 @@ class MyReadStream extends EventEmitter {
   }
 
   init () {
+    // 错误用法：使用this.buffer = Buffer.alloc(this.highWaterMark)
+    // 这样会操作同一个buffer,我们会将它push到数组中，之后又为它写入新的内容，这样也会导致数组中存储的buffer发生改变(指向同一片堆内存)
     this.pos = this.start || 0;
     // 1. 要先open
     // 2. 然后当监听data事件时进行读取
@@ -62,7 +64,9 @@ class MyReadStream extends EventEmitter {
       // 打开文件后会发射open事件
       return this.once('open', () => this.read());
     }
+    // 注意：buffer是内存，是引用类型。
     const buffer = Buffer.alloc(this.highWaterMark);
+    // 每次读取的个数要使用end和highWaterMark进行计算，最后一次有可能达不到buffer.length
     fs.read(this.fd, buffer, 0, buffer.length, this.pos, (err, bytesRead) => {
       if (err) {return this.emit('error', err);}
       if (bytesRead) {
@@ -70,7 +74,9 @@ class MyReadStream extends EventEmitter {
         this.emit('data', buffer.slice(0, bytesRead));
         this.read(this.fd);
       } else {
-        this.close();
+        if (this.autoClose) { //
+          this.close();
+        }
       }
     });
   }
@@ -78,7 +84,9 @@ class MyReadStream extends EventEmitter {
   close () {
     fs.close(this.fd, (err) => {
       if (err) {return this.emit('error', err);}
-      this.emit('close');
+      if (this.emitClose) {
+        this.emit('close');
+      }
       this.emit('end');
     });
   }
