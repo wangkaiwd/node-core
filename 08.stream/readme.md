@@ -40,4 +40,8 @@
 链表实现队列：
 
 * 数组：每次将第一个元素删除，需要将所有之后的元素向前移动一个索引，时间复杂度O(n)
-* 链表：将`head`对应的`value`取出后，直接将`head`向后移动即可：`head = head.next`，时间复杂度为O(n)
+* 链表：将`head`对应的`value`取出后，直接将`head`向后移动即可：`head = head.next`，时间复杂度为O(1)
+
+documentation:
+
+* [Backpressuring in Streams](https://nodejs.org/en/docs/guides/backpressuring-in-streams/)
