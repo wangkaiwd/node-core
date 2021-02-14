@@ -30,3 +30,13 @@
 ### reference materials
 
 * [Event loop: microtasks and macrotasks](https://javascript.info/event-loop)
+
+[Summary](https://javascript.info/event-loop#summary):  
+A more detailed event loop algorithm(though still simplified compared to
+the [specification](https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model))
+
+1. Dequeue and run the oldest task from the macrotask queue(e.g. `script`)
+2. Execute all microtasks: While the microtask queue is not empty: Dequeue and run the oldest microtask
+3. Render change if any
+4. If the macrotask queue is empty, wait till a macrotask appears
+5. Go to steps 1
