@@ -19,12 +19,7 @@ class MyReadStream extends EventEmitter {
   constructor (path, options) {
     super();
     this.normalizeOptions(path, options);
-    this.pos = this.start || 0;
-    this.on('newListener', (name, listener) => {
-      if (name === 'data') { // 监听data事件，开始读取内容
-        this.open();
-      }
-    });
+    this.init();
   }
 
   normalizeOptions (path, options) {
@@ -39,32 +34,49 @@ class MyReadStream extends EventEmitter {
     this.highWaterMark = options.highWaterMark || 64 * 1024;
   }
 
+  init () {
+    this.pos = this.start || 0;
+    // 1. 要先open
+    // 2. 然后当监听data事件时进行读取
+    this.open();
+    this.on('newListener', (name) => {
+      if (name === 'data') { // 监听data事件，开始读取内容
+        // 保证read是在打开之后，否则无法获取到打开文件对应的fd
+        this.read();
+      }
+    });
+  }
+
   open () {
     fs.open(this.path, this.flags, this.mode, (err, fd) => {
       if (err) {
         return this.emit('error', err);
       }
+      this.fd = fd;
       this.emit('open', fd);
-      this.read(fd);
     });
   }
 
-  read (fd) {
+  read () {
+    if (typeof this.fd !== 'number') { // 打开操作的回调会在主线程的代码执行完毕后再执行(event loop)，所以这里第一次拿不到this.fd
+      // 打开文件后会发射open事件
+      return this.once('open', () => this.read());
+    }
     const buffer = Buffer.alloc(this.highWaterMark);
-    fs.read(fd, buffer, 0, buffer.length, this.pos, (err, bytesRead) => {
+    fs.read(this.fd, buffer, 0, buffer.length, this.pos, (err, bytesRead) => {
       if (err) {return this.emit('error', err);}
       if (bytesRead) {
         this.pos += bytesRead;
         this.emit('data', buffer.slice(0, bytesRead));
-        this.read(fd);
+        this.read(this.fd);
       } else {
-        this.close(fd);
+        this.close();
       }
     });
   }
 
-  close (fd) {
-    fs.close(fd, (err) => {
+  close () {
+    fs.close(this.fd, (err) => {
       if (err) {return this.emit('error', err);}
       this.emit('close');
       this.emit('end');
