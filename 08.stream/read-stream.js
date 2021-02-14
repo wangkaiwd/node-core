@@ -1,5 +1,7 @@
 const fs = require('fs');
-const readStream = fs.createReadStream('./text.txt', {
+const MyReadStream = require('./read-stream-implement');
+// const readStream = fs.createReadStream('./text.txt', {
+const readStream = new MyReadStream('./text.txt', {
   flags: 'r', // 文件系统标识，默认为r
   encoding: null, // 文件编码
   fd: null, // file descriptor
@@ -43,6 +45,7 @@ readStream.on('close', () => {
   console.log('close');
 });
 let prevBodyLength = 0;
+// 每隔一秒读取一次数据，读取完后不再读取
 const timerId = setInterval(() => {
   if (prevBodyLength !== body.length) {
     prevBodyLength = body.length;

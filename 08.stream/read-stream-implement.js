@@ -35,6 +35,7 @@ class MyReadStream extends EventEmitter {
   }
 
   init () {
+    this.flowing = false; // 通过flowing来判断是否读取
     // 错误用法：使用this.buffer = Buffer.alloc(this.highWaterMark)
     // 这样会操作同一个buffer,我们会将它push到数组中，之后又为它写入新的内容，这样也会导致数组中存储的buffer发生改变(指向同一片堆内存)
     this.pos = this.start || 0;
@@ -44,6 +45,7 @@ class MyReadStream extends EventEmitter {
     this.on('newListener', (name) => {
       if (name === 'data') { // 监听data事件，开始读取内容
         // 保证read是在打开之后，否则无法获取到打开文件对应的fd
+        this.flowing = true;
         this.read();
       }
     });
@@ -64,6 +66,7 @@ class MyReadStream extends EventEmitter {
       // 打开文件后会发射open事件
       return this.once('open', () => this.read());
     }
+    if (!this.flowing) {return;}
     // 注意：buffer是内存，是引用类型。
     const buffer = Buffer.alloc(this.highWaterMark);
     // 每次读取的个数要使用end和highWaterMark进行计算，最后一次有可能达不到buffer.length
@@ -92,11 +95,12 @@ class MyReadStream extends EventEmitter {
   }
 
   pause () {
-
+    this.flowing = false;
   }
 
   resume () {
-
+    this.flowing = true;
+    this.read();
   }
 }
 
