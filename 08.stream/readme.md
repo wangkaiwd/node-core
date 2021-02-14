@@ -18,7 +18,11 @@
 * on('open')
 * on('close')
 
+### Implement Read Stream
+
 * [API for stream implementers](https://nodejs.org/api/stream.html#stream_api_for_stream_implementers)
+* _read
+* push
 
 ### Write Stream
 
@@ -31,6 +35,7 @@
     the `drain` event is emitted.
   * 内部用链表来存储每次`write`操作
 * [end](https://devdocs.io/node~14_lts/stream#stream_writable_end_chunk_encoding_callback)
+* drain
 
 文件：
 
