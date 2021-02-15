@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const writeStream = fs.createWriteStream(path.resolve(__dirname, './demo.txt'), {
+const MyWriteStream = require('./write-stream-implement');
+// const writeStream = fs.createWriteStream(path.resolve(__dirname, './demo.txt'), {
+const writeStream = new MyWriteStream(path.resolve(__dirname, './demo.txt'), {
   flags: 'w',
   encoding: 'utf8',
   autoClose: true,

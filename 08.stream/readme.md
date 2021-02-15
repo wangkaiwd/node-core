@@ -24,6 +24,14 @@
 * _read
 * push
 
+### theory of Read Stream
+
+打开文件递归调用fs.read方法一点点写入内容，写入完成后调用fs.close关闭文件
+
+* fs.open
+* [fs.read](https://github.com/wangkaiwd/node-core/blob/9fc2868f4be497535f08ddd810464129c7a194cd/08.stream/read-stream-implement.js#L66-L69)
+* fs.close
+
 ### Write Stream
 
 * fs.createWriteStream
@@ -35,7 +43,7 @@
     the `drain` event is emitted.
   * 内部用链表来存储每次`write`操作
 * [end](https://devdocs.io/node~14_lts/stream#stream_writable_end_chunk_encoding_callback)
-* drain
+* [drain](https://devdocs.io/node~14_lts/stream#stream_event_drain)
 
 文件：
 
@@ -55,3 +63,12 @@ documentation:
 
 * [Implementing a writable stream](https://nodejs.org/dist/latest-v14.x/docs/api/stream.html#stream_implementing_a_writable_stream)
 * _write(chunk,encoding,cb): 写入chunk以后调用cb
+
+### theory of Write Stream
+
+有问题的点记录：
+
+1. needDrain：是否需要出发drain事件？
+2. 写入内容总长度：开始写入，长度+写入内容，写入完成，要将长度再减去
+3. 什么时候要将needDrain进行重置？
+4. 处理`chunk`的类型

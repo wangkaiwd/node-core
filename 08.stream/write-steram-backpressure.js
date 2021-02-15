@@ -1,7 +1,9 @@
 // 用一个空间来写入10个数
 const fs = require('fs');
 const path = require('path');
-const ws = fs.createWriteStream(path.resolve(__dirname, './demo.txt'), {
+const MyWriteStream = require('./write-stream-implement');
+// const ws = fs.createWriteStream(path.resolve(__dirname, './demo.txt'), {
+const ws = new MyWriteStream(path.resolve(__dirname, './demo.txt'), {
   highWaterMark: 1
 });
 

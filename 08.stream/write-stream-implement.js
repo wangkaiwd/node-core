@@ -37,30 +37,70 @@ class MyWriteStream extends EventEmitter {
   init () {
     this.pos = 0;
     this.queue = [];
+    this.writting = false; // 是否正在写入
+    this.needDrain = false; // 是否需要触发drain事件
+    this.len = 0; // 写入内容的总长度
     this.open();
   }
 
   open () {
     fs.open(this.path, this.flags, this.mode, (err, fd) => {
       if (err) {return this.emit('error');}
+      this.fd = fd;
       this.emit('open');
     });
   }
 
-  write (chunk) {
-
+  write (chunk, encoding, cb) { // 调用write方法，由于事件环，会先执行该函数，此时拿不到fd
+    chunk = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    this.len += chunk.length;
+    if (!this.writting) {
+      this.writting = true;
+      this._write(chunk);
+    } else {
+      this.queue.push({ chunk, encoding, cb });
+    }
+    this.needDrain = this.len >= this.highWaterMark;
+    return !this.needDrain;
   }
 
-  _write (chunk) {
+  clearBuffer (written) {
+    // 总长度减去已经写入完成的字节数
+    this.pos += written;
+    this.len -= written;
+    const item = this.queue.shift();
+    if (item) {
+      const { chunk, encoding, cb } = item;
+      this._write(chunk, encoding, cb);
+    } else {
+      this.writting = false; // 停止写入
+      if (this.needDrain) { // 直到将队列中存储的所有内容都写完，才会继续将内容写入
+        this.needDrain = false;
+        this.emit('drain');
+      }
+    }
+  }
+
+  _write (chunk, encoding, cb) {
+    if (typeof this.fd !== 'number') {
+      this.once('open', () => {
+        this._write(chunk, encoding, cb);
+      });
+      return;
+    }
     const buffer = Buffer.from(chunk);
     fs.write(this.fd, buffer, 0, buffer.length, this.pos, (err, written) => {
       if (err) {return this.emit('error');}
-      this.pos += written;
+      this.clearBuffer(written);
     });
   }
 
   end () {
-
+    // fs.close(this.fd, () => {
+    //   if (this.emitClose) {
+    //     this.emit('close');
+    //   }
+    // });
   }
 }
 
