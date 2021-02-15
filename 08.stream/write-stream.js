@@ -17,4 +17,5 @@ const bool3 = writeStream.write('345');
 console.log(bool3);
 // writeSteam.end('last string'); // 可以在结束的时候，再最后写入一些内容
 writeStream.end();
+// 源码： 会调用：this.write(chunk)
 // writeStream.write('3'); // 结束之后不能再写入
