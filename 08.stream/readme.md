@@ -72,3 +72,16 @@ documentation:
 2. 写入内容总长度：开始写入，长度+写入内容，写入完成，要将长度再减去
 3. 什么时候要将needDrain进行重置？
 4. [处理`chunk`的类型](https://github.com/wangkaiwd/node-core/blob/8e83f55f552cb6a6fbf7416b6ca19b010ff245dd/08.stream/write-stream-implement.js#L55)
+
+### pipe
+
+* [pipe](https://devdocs.io/node~14_lts/stream#stream_readable_pipe_destination_options)
+
+### 流的类型
+
+> [Type of streams](https://nodejs.org/dist/latest-v14.x/docs/api/stream.html#stream_types_of_streams)
+
+* Readable
+* Writable
+* Duplex
+* Transform

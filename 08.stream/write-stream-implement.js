@@ -81,7 +81,7 @@ class MyWriteStream extends EventEmitter {
     }
   }
 
-  _write (chunk, encoding, cb) {
+  _write (chunk, encoding, cb) { // 调用cb时才会继续读取？
     if (typeof this.fd !== 'number') {
       this.once('open', () => {
         this._write(chunk, encoding, cb);

@@ -117,6 +117,7 @@ class MyReadStream extends EventEmitter {
     writeStream.on('drain', () => {
       this.resume();
     });
+    return writeStream;
   }
 }
 

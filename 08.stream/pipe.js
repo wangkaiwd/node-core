@@ -25,4 +25,5 @@ const ws = new WriteStream('./text.txt', {
 //   console.log('drain');
 //   rs.resume();
 // });
+// pipe方法是异步的
 rs.pipe(ws);
