@@ -3,7 +3,7 @@ const path = require('path');
 
 // 理解递归的思路Promise
 // 用一个简单的例子进行思考：a/b.js,c.js
-function rmdir (filename) {
+function rmdirConcurrent (filename) {
   return fs.stat(filename).then((stats) => {
     if (stats.isFile()) {
       return fs.unlink(filename);
@@ -14,7 +14,7 @@ function rmdir (filename) {
         } else {
           const promises = files.map(file => { // 删除所有的孩子
             const childPath = path.join(filename, file);
-            return rmdir(childPath);
+            return rmdirConcurrent(childPath);
           });
           // 等到删除完所有的孩子之后，再删除自己
           // 这里values是undefined组成的数组，因为fs.unlink,fs.rmdir转换成promise api后value为undefined
@@ -25,7 +25,7 @@ function rmdir (filename) {
   });
 }
 
-rmdir(path.resolve(__dirname, 'a')).then(() => {
+rmdirConcurrent(path.resolve(__dirname, 'a')).then(() => {
   console.log('删除');
 }).catch((err) => {
   console.log(err);

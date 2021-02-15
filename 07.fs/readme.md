@@ -21,3 +21,10 @@
 * fs.readdir
 * fs.stat
 * fs.unlink: 删除文件
+
+demo:
+
+* recursive remove directory
+  * 并行删除：同时删除所有的孩子，等到所有的孩子删除完成后再删除当前文件
+  * 串行删除：一个孩子删除完成后再删除下一个孩子
+* recursive make directory
