@@ -26,6 +26,7 @@ class MyReadStream extends EventEmitter {
     this.path = path;
     this.flags = options.flags || 'r';
     this.encoding = options.encoding || null;
+    this.fd = options.fd || null;
     this.mode = options.mode || 0o666;
     this.autoClose = options.autoClose || true;
     this.emitClose = options.emitClose || false;
@@ -70,7 +71,8 @@ class MyReadStream extends EventEmitter {
     // 注意：buffer是内存，是引用类型。
     const buffer = Buffer.alloc(this.highWaterMark);
     // 每次读取的个数要使用end和highWaterMark进行计算，最后一次有可能达不到buffer.length
-    fs.read(this.fd, buffer, 0, buffer.length, this.pos, (err, bytesRead) => {
+    const howMuchToRead = Math.min(this.end - this.pos, this.highWaterMark);
+    fs.read(this.fd, buffer, 0, howMuchToRead, this.pos, (err, bytesRead) => {
       if (err) {return this.emit('error', err);}
       if (bytesRead) {
         this.pos += bytesRead;

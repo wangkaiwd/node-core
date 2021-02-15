@@ -50,3 +50,8 @@
 documentation:
 
 * [Backpressuring in Streams](https://nodejs.org/en/docs/guides/backpressuring-in-streams/)
+
+### Implement Write Stream
+
+* [Implementing a writable stream](https://nodejs.org/dist/latest-v14.x/docs/api/stream.html#stream_implementing_a_writable_stream)
+* _write(chunk,encoding,cb): 写入chunk以后调用cb
