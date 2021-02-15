@@ -14,3 +14,10 @@
 
 * fs.readFile: If no encoding is specified, then the raw buffer is returned
 * fs.writeFile: Encoding is utf8 by default
+
+### directory operation
+
+* fs.mkdir
+* fs.readdir
+* fs.stat
+* fs.unlink: 删除文件
