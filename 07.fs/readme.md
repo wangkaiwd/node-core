@@ -24,7 +24,11 @@
 
 demo:
 
-* recursive remove directory
+* async recursive remove directory
+  * callback style / promise style / async + await style
   * 并行删除：同时删除所有的孩子，等到所有的孩子删除完成后再删除当前文件
   * 串行删除：一个孩子删除完成后再删除下一个孩子
+  * deep traverse delete
+  * breadth traverse delete
 * recursive make directory
+  * callback style/ promise style/ async + await style
