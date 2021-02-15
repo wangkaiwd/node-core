@@ -104,6 +104,20 @@ class MyReadStream extends EventEmitter {
     this.flowing = true;
     this.read();
   }
+
+  pipe (writeStream) {
+    this.on('data', (chunk) => {
+      if (!writeStream.write(chunk)) {
+        this.pause();
+      }
+    });
+    // this.on('end', () => {
+    //   writeStream.end();
+    // });
+    writeStream.on('drain', () => {
+      this.resume();
+    });
+  }
 }
 
 module.exports = MyReadStream;

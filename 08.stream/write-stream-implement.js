@@ -56,7 +56,7 @@ class MyWriteStream extends EventEmitter {
     this.len += chunk.length;
     if (!this.writting) {
       this.writting = true;
-      this._write(chunk);
+      this._write(chunk, encoding, cb);
     } else {
       this.queue.push({ chunk, encoding, cb });
     }
@@ -74,7 +74,7 @@ class MyWriteStream extends EventEmitter {
       this._write(chunk, encoding, cb);
     } else {
       this.writting = false; // 停止写入
-      if (this.needDrain) { // 直到将队列中存储的所有内容都写完，才会继续将内容写入
+      if (this.needDrain) { // 直到将队列中存储的所有内容都写完，才会继续将内容写入，此时触发drain事件
         this.needDrain = false;
         this.emit('drain');
       }
@@ -91,11 +91,12 @@ class MyWriteStream extends EventEmitter {
     const buffer = Buffer.from(chunk);
     fs.write(this.fd, buffer, 0, buffer.length, this.pos, (err, written) => {
       if (err) {return this.emit('error');}
+      cb?.();
       this.clearBuffer(written);
     });
   }
 
-  end () {
+  end () { // 关闭文件，要等到所有的内容读取完毕
     // fs.close(this.fd, () => {
     //   if (this.emitClose) {
     //     this.emit('close');
