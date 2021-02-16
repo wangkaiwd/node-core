@@ -9,6 +9,7 @@ const server = http.createServer((req, res) => {
     return res.end('NOT FOUND');
   }
   const { host } = req.headers;
+  // todo: How to get full url properly?
   const fullUrl = path.join('http://' + host, req.url);
   const { pathname } = new URL(fullUrl);
   let filename = pathname;
@@ -21,6 +22,7 @@ const server = http.createServer((req, res) => {
     res.end(data);
   }).catch((err) => {
     res.setHeader('Content', 'text/plain');
+    console.log(err);
     res.end('NOT FOUND');
   });
 });
