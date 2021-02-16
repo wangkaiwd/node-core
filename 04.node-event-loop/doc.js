@@ -29,4 +29,8 @@
 // 5. setImmediate vs setTimeout
 //    1. 主模块内执行，执行顺序被进程的性能限制
 //    2. 在I/O周期内执行，会先执行setImmediate，然后再执行setTimeout
-// 6.
+
+// process.nextTick:
+// 1. process.nextTick技术上不是事件环的一部分
+// 2. 在给定阶段的任何时间调用process.nextTick，所有的传入到process.nextTick的回调将会被在事件环继续之前被解决
+// 3. https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/#why-would-that-be-allowed
