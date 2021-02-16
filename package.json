@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "node core knowledge",
   "main": "index.js",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wangkaiwd/node-core.git"
@@ -15,5 +14,8 @@
   "bugs": {
     "url": "https://github.com/wangkaiwd/node-core/issues"
   },
-  "homepage": "https://github.com/wangkaiwd/node-core#readme"
+  "homepage": "https://github.com/wangkaiwd/node-core#readme",
+  "dependencies": {
+    "mime": "^2.5.0"
+  }
 }
