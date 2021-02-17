@@ -33,4 +33,11 @@
 // process.nextTick:
 // 1. process.nextTick技术上不是事件环的一部分
 // 2. 在给定阶段的任何时间调用process.nextTick，所有的传入到process.nextTick的回调将会被在事件环继续之前被解决
-// 3. https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/#why-would-that-be-allowed
+
+// Node.js 事件环分为几个阶段：
+//  1. timers
+//  2. pending callback
+//  3. idle, prepare
+//  4. poll
+//  5. check
+//  6. close callback
