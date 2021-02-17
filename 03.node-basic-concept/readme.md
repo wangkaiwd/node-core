@@ -27,34 +27,32 @@ module:
 * module.exports
 * require
 
-核心模块：
+模块分类：
 
-* fs
-  * fs.existsSync
-* path
-  * path.resolve
-  * path.join
-  * path.extname
-  * path.relative
-  * path.dirname
-* vm
-  * runInThisContext
+* 核心模块：
+  * fs
+    * fs.existsSync
+  * path
+    * path.resolve
+    * path.join
+    * path.extname
+    * path.relative
+    * path.dirname
+  * vm
+    * runInThisContext
+* 自定义模块
+* 第三方模块
 
-自定义模块：
+### 模块查找规则
 
-第三方模块：
+* 查找js文件 -> -> json文件 -> 件夹下的index.js文件 -> package.json中的main字段(版本不同可能查找方式会不同)
+* 不是绝对路径或相对路径(非核心模块)回去node_modules下查找
+* 如果当前node_modules找不到会继续向上层node_modules中查找，直到根目录
 
-implement commonjs:
+### implement commonjs
 
 * source code debug
 * implement by myself
 * [cycles](https://nodejs.org/api/modules.html#modules_cycles)
   step:
-
 * cache(don't again execute code)
-
-find:
-
-* 查找js文件 -> -> json文件 -> 件夹下的index.js文件 -> package.json中的main字段(版本不同可能查找方式会不同)
-* 不是绝对路径或相对路径(非核心模块)回去node_modules下查找
-* 如果当前node_modules找不到会继续向上层node_modules中查找，直到根目录
