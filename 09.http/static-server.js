@@ -4,13 +4,18 @@ const http = require('http');
 const mime = require('mime');
 const PORT = 3000;
 const base = 'public';
+
+// express method: https://github.com/expressjs/express/blob/master/lib/request.js#L306
+function getProtocol (req) {
+  return req.socket.encrypted ? 'https' : 'http';
+}
+
 const server = http.createServer((req, res) => {
   if (req.method === 'POST') {
     return res.end('NOT FOUND');
   }
   const { host } = req.headers;
-  // todo: How to get full url properly?
-  const fullUrl = path.join('http://' + host, req.url);
+  const fullUrl = path.join(getProtocol(req) + '://' + host, req.url);
   const { pathname } = new URL(fullUrl);
   let filename = pathname;
   if (pathname === '/') {
@@ -21,7 +26,7 @@ const server = http.createServer((req, res) => {
     res.setHeader('Content-Type', mime.getType(absPath));
     res.end(data);
   }).catch((err) => {
-    res.setHeader('Content', 'text/plain');
+    res.setHeader('Content-Type', 'text/plain');
     console.log(err);
     res.end('NOT FOUND');
   });
