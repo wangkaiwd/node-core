@@ -1,4 +1,5 @@
-const fs = require('fs').promises;
+const fs = require('fs/promises');
+const { createReadStream } = require('fs');
 const path = require('path');
 const http = require('http');
 const mime = require('mime');
@@ -12,6 +13,7 @@ function getProtocol (req) {
 
 const server = http.createServer((req, res) => {
   if (req.method === 'POST') {
+    res.statusCode = 404;
     return res.end('NOT FOUND');
   }
   const { host } = req.headers;
@@ -22,13 +24,24 @@ const server = http.createServer((req, res) => {
     filename = '/index.html';
   }
   const absPath = path.join(__dirname, base, filename);
-  fs.readFile(path.join(__dirname, base, filename)).then((data) => {
-    res.setHeader('Content-Type', mime.getType(absPath));
-    res.end(data);
-  }).catch((err) => {
+  // 当文件过大时，可以使用流来读取文件并将它返回给客户端
+  // fs.readFile(path.join(__dirname, base, filename)).then((data) => {
+  //   res.setHeader('Content-Type', mime.getType(absPath));
+  //   res.end(data);
+  // }).catch((err) => {
+  //   res.setHeader('Content-Type', 'text/plain');
+  //   console.log(err);
+  //   res.statusCode = 404;
+  //   res.end('NOT FOUND');
+  // });
+  const readStream = createReadStream(absPath);
+  res.setHeader('Content-Type', mime.getType(absPath));
+  readStream.pipe(res);
+  readStream.on('error', (err) => {
+    console.log('err', err);
     res.setHeader('Content-Type', 'text/plain');
-    console.log(err);
-    res.end('NOT FOUND');
+    res.statusCode = 404;
+    res.end('NOT FOUNT');
   });
 });
 

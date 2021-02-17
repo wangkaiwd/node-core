@@ -30,3 +30,14 @@
 实现一个http静态服务器：
 
 * 访问目录时加载目录下的`index.html`
+
+knowledge:
+
+* use stream for read file
+* mime get file type
+
+### 命令行工具
+
+* 实现一个命令行工具[`serve`](https://github.com/vercel/serve) ，可以利用命令行参数结合`Node.js`来启动一个静态服务器
+* 发布到`npm`
+* 测试该怎么写？

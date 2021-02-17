@@ -28,7 +28,7 @@ base64:
 * 服务器中可以操作二进制Buffer
 * Buffer可以和字符串随便转换
 * buffer声明出来后固定大小，不能随意改变
-* 后端声明大小的数量，都是字节数，这里是6个字节
+* 后端声明大小的数量，都是字节数
 
 * declare of Buffer
   * Buffer.alloc
