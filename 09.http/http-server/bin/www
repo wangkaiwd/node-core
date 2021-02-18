@@ -1,2 +1,9 @@
 #!/usr/bin/env node
+const { program } = require('commander');
 
+program
+  .command('start', { isDefault: true })
+  .description('launch web server')
+  .option('-p,--port <port_number>', 'web port', '5000');
+program.parse(process.argv);
+console.log(program.opts().port);
