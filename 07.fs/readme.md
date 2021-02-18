@@ -34,3 +34,7 @@ demo:
   * breadth traverse delete
 * recursive make directory
   * callback style/ promise style/ async + await style
+
+async await delete:
+
+* Promise.all: [delete in parallel](https://stackoverflow.com/a/37576787/12819402)
