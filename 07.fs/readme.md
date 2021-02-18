@@ -32,6 +32,7 @@ demo:
   * 串行删除：一个孩子删除完成后再删除下一个孩子
   * deep traverse delete
   * breadth traverse delete
+    ![](https://raw.githubusercontent.com/wangkaiwd/drawing-bed/master/20210218172613.png)
 * recursive make directory
   * callback style/ promise style/ async + await style
 

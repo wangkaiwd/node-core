@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs/promises');
 
+// 正常情况下会使用并行删除，因为各个文件删除之间是没有相互逻辑的
 async function rmdir (dir) { // 删除传入的目录，并且返回promise
   const stats = await fs.stat(dir);
   if (stats.isFile()) {
