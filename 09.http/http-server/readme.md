@@ -14,18 +14,19 @@ hserve -p 3000 -d public
 
 ### 知识点
 
-* package.json bin field
-* npm link
+* [package.json bin field](https://docs.npmjs.com/cli/v7/configuring-npm/package-json#bin)
+* [npm link](https://docs.npmjs.com/cli/v6/commands/npm-link)
 * commander
   * options
-  * name
-  * version
-  * custom help
+  * name ?
+  * version ?
+  * custom help ?
 * ejs
   * renderFile
 
 ### 问题
 
+* 优雅的api设计
 * commander的用法
 * 目录点击跳转地址如何拼接？
 * `Content-Type`后添加`charset=utf-8`是为了防止中文乱码
