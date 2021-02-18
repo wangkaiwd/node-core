@@ -17,3 +17,15 @@ hserve -p 3000 -d public
 * package.json bin field
 * npm link
 * commander
+  * options
+  * name
+  * version
+  * custom help
+* ejs
+  * renderFile
+
+### 问题
+
+* commander的用法
+* 目录点击跳转地址如何拼接？
+* `Content-Type`后添加`charset=utf-8`是为了防止中文乱码

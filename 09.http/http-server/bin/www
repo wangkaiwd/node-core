@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 const { program } = require('commander');
-
+const Server = require('../lib/index');
 program
-  .command('start', { isDefault: true })
-  .description('launch web server')
-  .option('-p,--port <port_number>', 'web port', '5000');
+  .option('-p,--port <port number>', 'specify server port')
+  .option('-d,--directory <root directory>', 'specify serve root directory');
+
 program.parse(process.argv);
-console.log(program.opts().port);
+
+// 调用start启动服务
+new Server(program.opts()).start();
