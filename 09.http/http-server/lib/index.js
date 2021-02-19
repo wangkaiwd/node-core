@@ -46,24 +46,25 @@ class Server {
   renderFile (absPath, req, res) {
     return fs.readFile(absPath).then((data) => {
       res.statusCode = 200;
+      // 响应头要设置charset=utf-8防止出现乱码
       res.setHeader('Content-Type', (mime.getType(absPath) || 'text/plain') + ';charset=utf-8');
       res.end(data);
     });
   }
 
-  // todo: convert it to Promise
   renderDir (absPath, req, res) {
-    return fs.readdir(absPath).then((files) => {
-      files = files.map(file => {
-        return {
-          name: file,
-          link: path.join(req.url, file) // 处理为相对根目录的路径
-        };
-      });
-      ejs.renderFile(path.join(__dirname, '../template.ejs'), { files }, (err, str) => {
-        res.setHeader('Content-Type', 'text/html;charset=utf-8');
-        res.end(str);
-      });
+    return new Promise((resolve, reject) => {
+      fs.readdir(absPath).then((files) => {
+        files = files.map(file => {
+          return { name: file, link: path.join(req.url, file) /* 处理为相对根目录的路径*/ };
+        });
+        ejs.renderFile(path.join(__dirname, '../template.ejs'), { files }, (err, str) => {
+          if (err) {return reject(err);}
+          res.setHeader('Content-Type', 'text/html;charset=utf-8');
+          res.end(str);
+          resolve();
+        });
+      }, reject);
     });
   }
 
