@@ -17,10 +17,10 @@ hserve -p 3000 -d public
 * [package.json bin field](https://docs.npmjs.com/cli/v7/configuring-npm/package-json#bin)
 * [npm link](https://docs.npmjs.com/cli/v6/commands/npm-link)
 * commander
-  * options
-  * name ?
-  * version ?
-  * custom help ?
+  * [options](https://github.com/tj/commander.js/#common-option-types-boolean-and-value)
+  * [name](https://github.com/tj/commander.js/#usage-and-name)
+  * [version](https://github.com/tj/commander.js/#version-option)
+  * [custom help](https://github.com/tj/commander.js/#custom-help)
 * ejs
   * renderFile
 

@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 const { program } = require('commander');
 const Server = require('../lib/index');
+const pkg = require('../package.json');
+// name不设置会从完整的命令行参数中进行
+program
+  .version(pkg.version, '-v,--version', 'output the current version');
+
 program
   .option('-p,--port <port number>', 'specify server port')
   .option('-d,--directory <root directory>', 'specify serve root directory');
