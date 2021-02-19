@@ -1,5 +1,6 @@
 const http = require('http');
 const fs = require('fs/promises');
+const { createReadStream } = require('fs');
 const path = require('path');
 const { getFullUrl } = require('../shared/util');
 const mime = require('mime');
@@ -43,12 +44,27 @@ class Server {
       });
   }
 
+  // renderFile (absPath, req, res) {
+  //   return fs.readFile(absPath).then((data) => {
+  //     res.statusCode = 200;
+  //     // 响应头要设置charset=utf-8防止出现乱码
+  //     res.setHeader('Content-Type', (mime.getType(absPath) || 'text/plain') + ';charset=utf-8');
+  //     res.end(data);
+  //   });
+  // }
   renderFile (absPath, req, res) {
-    return fs.readFile(absPath).then((data) => {
-      res.statusCode = 200;
-      // 响应头要设置charset=utf-8防止出现乱码
-      res.setHeader('Content-Type', (mime.getType(absPath) || 'text/plain') + ';charset=utf-8');
-      res.end(data);
+    return new Promise((resolve, reject) => {
+      // 用流来读取数据的好处，可以一点点读取，防止文件过大，淹没内存
+      const readStream = createReadStream(absPath);
+      // 使用pipe的好处，pipe内部会控制写入的速率
+      // 当写入内容超过了highWaterMark停止写入，当内存中存储的写入队列中的内容都被写入后，会emit drain事件，此时继续写入
+      readStream.pipe(res);
+      readStream.on('error', (err) => {
+        reject(err);
+      });
+      readStream.on('end', () => {
+        resolve();
+      });
     });
   }
 
