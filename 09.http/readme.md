@@ -10,6 +10,18 @@
 
 * [HTTP response status codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
 
+常用状态码：
+
+* 200 OK
+* 206 Partial Content
+* 304 Not Modified
+* 400 Bad Request: The server could not understand the request due to invalid syntax(请求参数错误)
+* 401 Unauthorized: 客户端的身份未验证
+* 403 Forbidden: 客户端的身份已验证，但是没有权限访问内容
+* 404 Not Found
+* 405 Method Not Allowed
+* 5xx Server error response
+
 ### Usage of http module
 
 * server = http.createServer
