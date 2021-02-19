@@ -1,5 +1,6 @@
 const http = require('http');
 const fs = require('fs/promises');
+const crypto = require('crypto');
 const { createReadStream } = require('fs');
 const path = require('path');
 const { getFullUrl } = require('../shared/util');
@@ -46,23 +47,27 @@ class Server {
       });
   }
 
-  // renderFile (absPath, req, res) {
-  //   return fs.readFile(absPath).then((data) => {
-  //     res.statusCode = 200;
-  //     // 响应头要设置charset=utf-8防止出现乱码
-  //     res.setHeader('Content-Type', (mime.getType(absPath) || 'text/plain') + ';charset=utf-8');
-  //     res.end(data);
-  //   });
-  // }
   cache (absPath, req, res, stats) {
-    res.statusCode = 200;
-    res.setHeader('Expires', new Date(Date.now() + 10 * 1000)); // 设置具体的时间
-    // res.setHeader('Cache-Control', 'max-age=10');
-    // 返回是否需要继续读取缓存
-    const ctime = stats.ctime.toUTCString();
-    const ifModifiedSince = req.headers['if-modified-since'];
-    res.setHeader('Last-Modified', ctime);
-    return ifModifiedSince && ctime === new Date(ifModifiedSince).toUTCString();
+    return fs.readFile(absPath).then((data) => {
+      res.statusCode = 200;
+      res.setHeader('Expires', new Date(Date.now() + 10 * 1000).toUTCString()); // 设置具体的时间
+      res.setHeader('Cache-Control', 'max-age=10');
+      // 返回是否需要继续读取缓存
+      const ctime = stats.ctime.toUTCString();
+      const ifModifiedSince = req.headers['if-modified-since'];
+      const ifNoneMatch = req.headers['if-none-match'];
+      res.setHeader('Last-Modified', ctime);
+      // 这里要读取整个文件，正常来说会读取文件的一部分内容来做摘要
+      const etag = crypto.createHash('md5').update(data).digest('base64');
+      res.setHeader('Etag', etag);
+      // 通过Etag实现更准确的缓存, 浏览器会携带If-None-Match
+      if (ctime === ifModifiedSince) {
+        return true;
+      }
+      if (etag === ifNoneMatch) {
+        return true;
+      }
+    });
   }
 
   renderFile (absPath, req, res, stats) { // 缓存之后不会向服务端发请求，只有在强制缓存时间过去之后，才会发请求
@@ -72,19 +77,22 @@ class Server {
       // 使用pipe的好处，pipe内部会控制写入的速率
       // 当写入内容超过了highWaterMark停止写入，当内存中存储的写入队列中的内容都被写入后，会emit drain事件，此时继续写入
       // 响应头要设置charset=utf-8防止出现乱码
-      if (this.cache(absPath, req, res, stats)) {
-        res.statusCode = 304;
-        res.end(); // 返回304，直接结束本次响应，浏览器看到是304会自己去缓存中查找
-        return;
-      }
-      const readStream = createReadStream(absPath);
-      res.setHeader('Content-Type', (mime.getType(absPath) || 'text/plain') + ';charset=utf-8');
-      readStream.pipe(res);
-      readStream.on('error', (err) => {
-        reject(err);
-      });
-      readStream.on('end', () => {
-        resolve();
+      return this.cache(absPath, req, res, stats).then((cacheable) => {
+        if (cacheable) {
+          res.statusCode = 304;
+          res.end(); // 返回304，直接结束本次响应，浏览器看到是304会自己去缓存中查找
+          resolve();
+        } else {
+          const readStream = createReadStream(absPath);
+          res.setHeader('Content-Type', (mime.getType(absPath) || 'text/plain') + ';charset=utf-8');
+          readStream.pipe(res);
+          readStream.on('error', (err) => {
+            reject(err);
+          });
+          readStream.on('end', () => {
+            resolve();
+          });
+        }
       });
     });
   }
