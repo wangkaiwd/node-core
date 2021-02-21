@@ -5,7 +5,7 @@ const context = {
     this.res.write(value);
     // this.res.end();
   },
-  // get path () { // 并不是这种写法
+  // get path () { // 不能直接设置值，需要走get方法。个人觉得这样写也可以，不过将它拆出来更加有利于模块的划分
   //   return this.request.path;
   // }
 };
@@ -21,4 +21,4 @@ function defineGetter (target, key) {
   });
 }
 
-defineGetter('req', 'path');
+defineGetter('request', 'path');
