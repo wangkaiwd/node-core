@@ -30,7 +30,6 @@ class Server {
     } else {
       absPath = path.join(__dirname, directory, pathname);
     }
-    console.log('pathname', pathname);
     this.resolvePath(absPath, req, res)
       .catch((err) => this.handleError(err, res));
   }
