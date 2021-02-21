@@ -7,6 +7,7 @@
 * 通过基础的一些用法来掌握`koa`的原理
 * context,response,request都是导出的对象，每创建一个新的`Application`实例，都需要一个全新的`context,response,request`，这样不同实例之间的修改对这些属性的修改不会相互干扰
 * 每个请求之间也要创建单独的context,response,request
+* 利用对象的`get,set`方法来封装`Node.js`的原生`req,res`(通过`this`可以获取到`req,res`,可以在`set/get`方法中对它们的使用进行简化，更方便用户使用)
 
 实现过程：
 
@@ -21,3 +22,12 @@
   * response: 自己封装
   * request: 自己封装
 * listen
+
+需求：
+
+```javascript
+console.log(ctx.req.url);
+console.log(ctx.request.req.url);
+console.log(ctx.request.path);
+console.log(ctx.path);
+```

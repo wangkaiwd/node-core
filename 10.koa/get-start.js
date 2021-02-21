@@ -10,7 +10,7 @@ app.use((ctx) => { // 异步的use方法
   // console.log('ctx.request.url', ctx.request.url);
   // console.log('ctx.request.req.url', ctx.request.req.url);
   // console.log('ctx.response.req.url', ctx.response.req.url);
-  console.log('path', ctx.request.path);
+  console.log('path', ctx.path);
   ctx.body = 'hello koa';
 });
 
