@@ -21,4 +21,15 @@ function defineGetter (target, key) {
   });
 }
 
+function defineSetter (target, key) {
+  Object.defineProperty(context, key, {
+    set (value) {
+      this[target][key] = value;
+    }
+  });
+}
+
 defineGetter('request', 'path');
+
+defineGetter('response', 'body');
+defineSetter('response', 'body');

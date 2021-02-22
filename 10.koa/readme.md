@@ -23,11 +23,18 @@
   * request: 自己封装
 * listen
 
-需求：
+需求1：
 
 ```javascript
 console.log(ctx.req.url);
 console.log(ctx.request.req.url);
 console.log(ctx.request.path);
 console.log(ctx.path);
+```
+
+需求2：
+
+```javascript
+console.log(ctx.body)
+console.log(ctx.response.body)
 ```

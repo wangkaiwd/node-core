@@ -1,5 +1,5 @@
-const Koa = require('./lib/application');
-// const Koa = require('koa');
+// const Koa = require('./lib/application');
+const Koa = require('koa');
 const app = new Koa();
 
 app.use((ctx) => { // 异步的use方法
@@ -10,8 +10,8 @@ app.use((ctx) => { // 异步的use方法
   // console.log('ctx.request.url', ctx.request.url);
   // console.log('ctx.request.req.url', ctx.request.req.url);
   // console.log('ctx.response.req.url', ctx.response.req.url);
-  console.log('path', ctx.path);
-  ctx.body = 'hello koa';
+  ctx.body = 'hello koa ';
+  ctx.response.body += 'Ye';
 });
 
 app.listen(3000, () => {
