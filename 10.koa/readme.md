@@ -38,3 +38,12 @@ console.log(ctx.path);
 console.log(ctx.body)
 console.log(ctx.response.body)
 ```
+
+先将字符串拼接到`ctx.response.body`上，等到所有该请求的中间件函数执行完毕后，最后通过`res.end(ctx.body)`将其返回。细节：当`ctx.body`为空时，页面返回`Not Found`
+
+需求3：可以直接将`ctx.body`设置为流，`koa`会帮我们将`req`通过`pipe`方法写入到`ctx.body`中
+> 否则如果`res.end(writeStream)`会将文件直接下载
+
+```javascript
+ctx.body = fs.createWriteStream()
+```

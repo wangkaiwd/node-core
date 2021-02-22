@@ -1,6 +1,8 @@
 // const Koa = require('./lib/application');
 const Koa = require('koa');
 const app = new Koa();
+const path = require('path');
+const { createReadStream } = require('fs');
 
 app.use((ctx) => { // 异步的use方法
   // ctx.body = 'Hello Koa';
@@ -10,8 +12,10 @@ app.use((ctx) => { // 异步的use方法
   // console.log('ctx.request.url', ctx.request.url);
   // console.log('ctx.request.req.url', ctx.request.req.url);
   // console.log('ctx.response.req.url', ctx.response.req.url);
-  ctx.body = 'hello koa ';
-  ctx.response.body += 'Ye';
+  // ctx.body = 'hello koa ';
+  // ctx.response.body += 'Ye';
+  ctx.set('Content-Type', 'text/html'); // 必须设置请求头才会将其作为`html`字符串返回，否则会直接下载
+  ctx.body = createReadStream(path.resolve(__dirname, 'test.html'));
 });
 
 app.listen(3000, () => {
