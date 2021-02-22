@@ -34,6 +34,7 @@ Application.prototype.handleRequest = function (req, res) {
   if (typeof ctx.body === 'string' || Buffer.isBuffer(ctx.body)) {
     res.end(ctx.body);
   } else if (ctx.body instanceof Stream) {
+    // 源码会直接将流进行下载，会设置: content-position响应头
     ctx.body.pipe(res);
   } else {
     res.end('Not Found!');
