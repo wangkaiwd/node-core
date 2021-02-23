@@ -36,6 +36,9 @@ Application.prototype.handleRequest = function (req, res) {
   } else if (ctx.body instanceof Stream) {
     // 源码会直接将流进行下载，会设置: content-position响应头
     ctx.body.pipe(res);
+  } else if (Object.prototype.toString.call(this) === '[object Object]') {
+    res.setHeader('Content-Type', 'application/json;charset=utf8');
+    res.end(JSON.stringify(ctx.body));
   } else {
     res.end('Not Found!');
   }

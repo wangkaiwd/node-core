@@ -46,7 +46,7 @@ console.log(ctx.response.body)
 
 ```javascript
 // 原生koa:必须设置请求头才会将其作为`html`字符串返回，否则会直接下载
-ctx.set('Content-Type', 'text/html');
+ctx.set('Content-Type', 'text/html')
 ctx.body = fs.createWriteStream()
 ```
 
