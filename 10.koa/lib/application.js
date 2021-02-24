@@ -29,19 +29,33 @@ Application.prototype.handleRequest = function (req, res) {
   const ctx = this.createContext(req, res);
   res.statusCode = 404;
   // 这里会是异步函数
-  this.middlewares.forEach(m => m(ctx));
-  // 执行完函数后，手动将ctx.body用res.end进行返回
-  if (typeof ctx.body === 'string' || Buffer.isBuffer(ctx.body)) {
-    res.end(ctx.body);
-  } else if (ctx.body instanceof Stream) {
-    // 源码会直接将流进行下载，会设置: content-position响应头
-    ctx.body.pipe(res);
-  } else if (Object.prototype.toString.call(this) === '[object Object]') {
-    res.setHeader('Content-Type', 'application/json;charset=utf8');
-    res.end(JSON.stringify(ctx.body));
-  } else {
-    res.end('Not Found!');
-  }
+  // this.middlewares.forEach(m => m(ctx));
+  let i = 0;
+
+  const next = () => {
+    if (i === this.middlewares.length) { // 如果执行完所有的中间件函数
+      return Promise.resolve();
+    }
+    const middleware = this.middlewares[i];
+    i++;
+    return Promise.resolve(middleware(ctx, next));
+  };
+
+  next().then(() => {
+    // 执行完函数后，手动将ctx.body用res.end进行返回
+    if (typeof ctx.body === 'string' || Buffer.isBuffer(ctx.body)) {
+      res.end(ctx.body);
+    } else if (ctx.body instanceof Stream) {
+      // 源码会直接将流进行下载，会设置: content-position响应头
+      ctx.body.pipe(res);
+    } else if (Object.prototype.toString.call(this) === '[object Object]') {
+      res.setHeader('Content-Type', 'application/json;charset=utf8');
+      res.end(JSON.stringify(ctx.body));
+    } else {
+      res.end('Not Found!');
+    }
+  });
+
 };
 Application.prototype.listen = function (...args) {
   const server = http.createServer(this.handleRequest.bind(this));

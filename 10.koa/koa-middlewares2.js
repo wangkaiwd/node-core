@@ -1,4 +1,5 @@
-const Koa = require('koa');
+const Koa = require('./lib/application');
+// const Koa = require('koa');
 const app = new Koa();
 const PORT = 3000;
 const sleep = function (delay) {
