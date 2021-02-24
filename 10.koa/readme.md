@@ -57,7 +57,3 @@ ctx.body = fs.createWriteStream()
 ```javascript
 ctx.body = { name: '张三' }
 ```
-
-用`Promise`来处理通过`use`传入的中间件函数:
-
-* 几个不用`await`关键字的代码执行`demo`
