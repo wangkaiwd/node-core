@@ -50,7 +50,8 @@ class Server {
     return fs.readFile(absPath).then((data) => {
       res.statusCode = 200;
       res.setHeader('Expires', new Date(Date.now() + 10 * 1000).toUTCString()); // 设置具体的时间
-      res.setHeader('Cache-Control', 'max-age=10');
+      // res.setHeader('Cache-Control', 'max-age=10');
+      res.setHeader('Cache-Control', 'no-cache'); // 每次都会发请求，让服务端校验是否需要缓存
       // 返回是否需要继续读取缓存
       const ctime = stats.ctime.toUTCString();
       const ifModifiedSince = req.headers['if-modified-since'];
@@ -77,7 +78,7 @@ class Server {
       // 当写入内容超过了highWaterMark停止写入，当内存中存储的写入队列中的内容都被写入后，会emit drain事件，此时继续写入
       // 响应头要设置charset=utf-8防止出现乱码
       return this.cache(absPath, req, res, stats).then((cacheable) => {
-        if (cacheable) {
+        if (cacheable) { // 文件内容没有发生改变,index.html也会返回304,浏览器看到304便会去缓存中查找，服务端不用返回内容
           res.statusCode = 304;
           res.end(); // 返回304，直接结束本次响应，浏览器看到是304会自己去缓存中查找
           resolve();
