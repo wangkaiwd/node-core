@@ -57,3 +57,22 @@ ctx.body = fs.createWriteStream()
 ```javascript
 ctx.body = { name: '张三' }
 ```
+
+### `koa`的中间件
+
+用`Promise`来处理通过`use`传入的中间件函数:
+
+* 几个不用`await`关键字的代码执行`demo`
+
+洋葱模型：
+
+* 一定要在`next`前加`await`，否则下一个中间件中有异步逻辑，就会让`next`下面的逻辑先执行
+
+### 中间件的作用
+
+在使用和理解一些常用中间件的原理后将其进行整理即可
+
+### 实现`koa`的中间件
+
+* 递归
+* `Promise`
