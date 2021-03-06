@@ -34,7 +34,7 @@ Application.prototype.handleRequest = function (req, res) {
 
   const next = () => {
     if (i === this.middlewares.length) { // 如果执行完所有的中间件函数
-      return Promise.resolve();
+      return Promise.resolve(); // 最终返回value为undefined的Promise
     }
     const middleware = this.middlewares[i];
     i++;

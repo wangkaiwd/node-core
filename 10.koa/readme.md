@@ -50,7 +50,7 @@ ctx.set('Content-Type', 'text/html')
 ctx.body = fs.createWriteStream()
 ```
 
-* `Content-Type: Content-Position`
+* [`Content-Type: Content-Position`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#examples)
 
 需求4：`ctx.body`支持返回`JSON`对象：
 
