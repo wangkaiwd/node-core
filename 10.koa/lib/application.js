@@ -3,13 +3,19 @@ const context = require('./context');
 const request = require('./request');
 const response = require('./response');
 const Stream = require('stream');
+const util = require('util');
+const EventEmitter = require('events');
 
 function Application () {
+  EventEmitter.call(this);
   this.middlewares = [];
   this.context = Object.create(context);
   this.request = Object.create(request);
   this.response = Object.create(response);
 }
+
+Application.prototype = Object.create(EventEmitter.prototype);
+Application.prototype.constructor = Application;
 
 // 每次请求要创建单独的ctx,request,response
 Application.prototype.createContext = function (req, res) {
@@ -23,6 +29,25 @@ Application.prototype.createContext = function (req, res) {
   ctx.response.res = ctx.request.res = ctx.res = res;
   return ctx;
 };
+
+Application.prototype.compose = function (ctx) {
+  let i = 0;
+
+  const dispatch = () => {
+    if (i === this.middlewares.length) { // 如果执行完所有的中间件函数
+      return Promise.resolve(); // 最终返回value为undefined的Promise
+    }
+    const middleware = this.middlewares[i];
+    i++;
+    try {
+      return Promise.resolve(middleware(ctx, dispatch));
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  };
+
+  return dispatch;
+};
 // 每次请求要有一个全新的上下文
 // req,res的功能比较弱，还要单独封装一个ctx变量来做整合，并且为用户提供一些便捷的api
 Application.prototype.handleRequest = function (req, res) {
@@ -30,18 +55,8 @@ Application.prototype.handleRequest = function (req, res) {
   res.statusCode = 404;
   // 这里会是异步函数
   // this.middlewares.forEach(m => m(ctx));
-  let i = 0;
-
-  const next = () => {
-    if (i === this.middlewares.length) { // 如果执行完所有的中间件函数
-      return Promise.resolve(); // 最终返回value为undefined的Promise
-    }
-    const middleware = this.middlewares[i];
-    i++;
-    return Promise.resolve(middleware(ctx, next));
-  };
-
-  next().then(() => {
+  const dispatch = this.compose(ctx);
+  dispatch().then(() => {
     // 执行完函数后，手动将ctx.body用res.end进行返回
     if (typeof ctx.body === 'string' || Buffer.isBuffer(ctx.body)) {
       res.end(ctx.body);
@@ -54,12 +69,16 @@ Application.prototype.handleRequest = function (req, res) {
     } else {
       res.end('Not Found!');
     }
+  }).catch((err) => {
+    res.statusCode = 500;
+    ctx.body = 'Server Internal Error!';
+    res.end(ctx.body);
+    this.emit('error', err, ctx);
   });
-
 };
 Application.prototype.listen = function (...args) {
   const server = http.createServer(this.handleRequest.bind(this));
-  server.listen(...args);
+  return server.listen(...args);
 };
 
 Application.prototype.use = function (cb) {
