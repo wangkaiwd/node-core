@@ -45,8 +45,8 @@ Application.prototype.compose = function (ctx) {
       return Promise.reject(e);
     }
   };
-
-  return dispatch;
+  // 默认先执行第1个，然后通过用户来手动调用next来执行接下来的函数
+  return dispatch();
 };
 // 每次请求要有一个全新的上下文
 // req,res的功能比较弱，还要单独封装一个ctx变量来做整合，并且为用户提供一些便捷的api
@@ -55,8 +55,7 @@ Application.prototype.handleRequest = function (req, res) {
   res.statusCode = 404;
   // 这里会是异步函数
   // this.middlewares.forEach(m => m(ctx));
-  const dispatch = this.compose(ctx);
-  dispatch().then(() => {
+  this.compose(ctx).then(() => {
     // 执行完函数后，手动将ctx.body用res.end进行返回
     if (typeof ctx.body === 'string' || Buffer.isBuffer(ctx.body)) {
       res.end(ctx.body);
