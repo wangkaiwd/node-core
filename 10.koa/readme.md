@@ -86,3 +86,9 @@ ctx.body = { name: '张三' }
 #### body-parser
 
 需求：通过`get`请求`/login`返回登录表单，填写用户名和密码后点击登录，会发送`post`请求，解析请求数据
+
+分别处理不同的请求头：
+
+* `application/x-www-form-urlencoded`，可以通过`querystring`将其解析为对象
+* `application/json`，通过`JSON.parse`进行解析
+* `multipart/form-data`，文件上传
