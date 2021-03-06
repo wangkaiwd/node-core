@@ -1,4 +1,4 @@
-const Koa = require('./lib/application');
+const Koa = require('../lib/application');
 const app = new Koa();
 const PORT = 3000;
 app.use(() => {
