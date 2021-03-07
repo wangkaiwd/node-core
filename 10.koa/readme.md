@@ -92,3 +92,47 @@ ctx.body = { name: '张三' }
 * `application/x-www-form-urlencoded`，可以通过`querystring`将其解析为对象
 * `application/json`，通过`JSON.parse`进行解析
 * `multipart/form-data`，文件上传
+
+请求头中会携带`boundary`表示参数之间的分界线：
+
+```text
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryUYwLSWdutXxygAz4
+```
+
+![](https://raw.githubusercontent.com/wangkaiwd/drawing-bed/master/20210307174315.png)
+
+通过`multipart/form-data`传来的文本和其它表单参数组成的内容，如果是图片，将`Buffer`转换为字符串会出现乱码
+
+```text
+------WebKitFormBoundaryob0tB4JxRfBPwfZg
+Content-Disposition: form-data; name="username"
+
+1
+------WebKitFormBoundaryob0tB4JxRfBPwfZg
+Content-Disposition: form-data; name="password"
+
+a
+------WebKitFormBoundaryob0tB4JxRfBPwfZg
+Content-Disposition: form-data; name="file"; filename="english-notes.txt"
+Content-Type: text/plain
+
+characteristic: 特征
+convoluted: 冗长费解的
+profit: 盈利；利润
+cognitive: 认知的；认识的
+defend: 捍卫；守卫
+status: 地位；
+inertia: 惯性
+mutually: 互相地
+pillar: 支柱
+pretend: 假装；伪装
+precedence: 优先级
+the other way around: 反过来
+doodle: 涂鸦
+embarrassed: 尴尬的；窘迫的
+breadth: 广度
+
+------WebKitFormBoundaryob0tB4JxRfBPwfZg--
+```
+
+![](https://raw.githubusercontent.com/wangkaiwd/drawing-bed/master/20210307174638.png)

@@ -16,7 +16,8 @@ function getBody (ctx) {
     });
     ctx.req.on('end', () => {
       // 要通过Buffer来进行拼接，字符串拼接可能会由于拼不成一个完整字符而出现乱码
-      const body = Buffer.concat(arr).toString();
+      const buffer = Buffer.concat(arr);
+      const body = buffer.toString();
       const contentType = ctx.get('Content-Type');
       // https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST
       if (contentType.includes('application/x-www-form-urlencoded')) {
@@ -25,6 +26,9 @@ function getBody (ctx) {
         resolve(JSON.parse(body));
       } else if (contentType.includes('plain/text')) {
         resolve(body);
+      } else if (contentType.startsWith('multipart/form-data')) { // 文件上传：二进制，可能是图片或文本
+        console.log(body);
+        resolve();
       }
       resolve();
     });
