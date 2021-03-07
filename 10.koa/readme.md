@@ -101,7 +101,9 @@ Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryUYwLSWdutXxygA
 
 ![](https://raw.githubusercontent.com/wangkaiwd/drawing-bed/master/20210307174315.png)
 
-通过`multipart/form-data`传来的文本和其它表单参数组成的内容，如果是图片，将`Buffer`转换为字符串会出现乱码
+通过`multipart/form-data`传来的文本和其它表单参数组成的内容，如果是图片，将`Buffer`转换为字符串会出现乱码。
+
+多个图片也会被分界线分割，方便一个一个进行解析
 
 ```text
 ------WebKitFormBoundaryob0tB4JxRfBPwfZg
@@ -112,6 +114,25 @@ Content-Disposition: form-data; name="username"
 Content-Disposition: form-data; name="password"
 
 a
+------WebKitFormBoundaryob0tB4JxRfBPwfZg
+Content-Disposition: form-data; name="file"; filename="english-notes copy.txt"
+Content-Type: text/plain
+
+characteristic: 特征
+convoluted: 冗长费解的
+profit: 盈利；利润
+cognitive: 认知的；认识的
+defend: 捍卫；守卫
+status: 地位；
+inertia: 惯性
+mutually: 互相地
+pillar: 支柱
+pretend: 假装；伪装
+precedence: 优先级
+the other way around: 反过来
+doodle: 涂鸦
+embarrassed: 尴尬的；窘迫的
+breadth: 广度
 ------WebKitFormBoundaryob0tB4JxRfBPwfZg
 Content-Disposition: form-data; name="file"; filename="english-notes.txt"
 Content-Type: text/plain

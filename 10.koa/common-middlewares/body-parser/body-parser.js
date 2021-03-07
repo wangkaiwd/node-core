@@ -1,18 +1,54 @@
 const querystring = require('querystring');
+const uuid = require('uuid');
+const fs = require('fs');
+const path = require('path');
 
-function bodyParser () {
+function bodyParser ({ upload } = {}) {
   return async (ctx, next) => {
     // 等到Promise执行完成
-    ctx.request.body = await getBody(ctx);
+    ctx.request.body = await getBody(ctx, upload);
     await next();
   };
 }
 
-function parseMultipartFormData () {
-
+function processFile ({ header, upload, result, body }) {
+  const headerStr = header.toString();
+  // 文件上传逻辑：将文件内容从请求中截取出来，将文件写入到对应的上传目录中，然后将文件信息作为数组(多文件上传)返回
+  const originName = headerStr.match(/filename="(.+?)"/)[1];
+  const filename = uuid.v4();
+  const content = body.slice(header.length + 4, -2); // 开头:header + \r\n\r\n, 中间：content, 结尾：\r\n
+  if (!fs.existsSync(upload)) {
+    fs.mkdirSync(upload);
+  }
+  fs.writeFileSync(path.join(upload, filename), content);
+  const files = result.files = result.files || [];
+  files.push({
+    size: content.length,
+    name: originName,
+    filename
+  });
 }
 
-function getBody (ctx) {
+function parseMultipartFormData (contentType, buffer, upload) {
+  const boundary = '--' + contentType.split('=')[1];
+  const buffers = buffer.split(boundary).slice(1, -1);
+  const result = {};
+  // 拿到头和体
+  buffers.forEach(buf => {
+    const [header, body] = buf.split('\r\n\r\n');
+    const headerStr = header.toString();
+    if (!headerStr.includes('filename')) {
+      const key = headerStr.match(/name="(.+?)"/)[1];
+      result[key] = body.slice(0, -2).toString();
+    } else {
+      // 文件上传逻辑：将文件内容从请求中截取出来，将文件写入到对应的上传目录中，然后将文件信息作为数组(多文件上传)返回
+      processFile({ header, upload, result, body });
+    }
+  });
+  return result;
+}
+
+function getBody (ctx, upload) {
   return new Promise((resolve, reject) => {
     const arr = [];
     ctx.req.on('data', (chunk) => {
@@ -32,11 +68,11 @@ function getBody (ctx) {
         resolve(body);
       } else if (contentType.startsWith('multipart/form-data')) { // 文件上传：二进制，可能是图片或文本
         // 处理服务端传来的二进制内容
-        const boundary = '--' + contentType.split('=')[1];
-        // buffer.split(boundary);
+        const result = parseMultipartFormData(contentType, buffer, upload);
+        resolve(result);
+      } else {
         resolve();
       }
-      resolve();
     });
   });
 }
