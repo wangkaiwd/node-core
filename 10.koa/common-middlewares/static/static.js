@@ -10,7 +10,6 @@ function serve (dirname = '.') {
     const exist = existsSync(absPath);
     if (exist) {
       const stats = await fs.stat(absPath);
-      console.log(absPath);
       if (stats.isFile()) {
         const type = mime.getType(absPath);
         ctx.set('Content-Type', `${type}; charset=utf-8`);
