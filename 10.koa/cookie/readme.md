@@ -10,3 +10,7 @@
 * `session`是基于`cookie`的，它只是一个存储在服务器的对象，需要通过唯一标识来获取`session`中的信息，而这个唯一标识也就是`sessionId`是通过`cookie`来发送的
 
 ### 创建`cookie`
+
+### `cookie`的选项
+* Expires
+* Max-age
