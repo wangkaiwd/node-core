@@ -12,8 +12,13 @@ const server = http.createServer((req, res) => {
         config.push(`${key}=${options[key]}`);
       }
     });
-    cookies.push(`${name}=${value}; ${config.join('; ')}`);
+    let cookie = `${name}=${value}`;
+    if (config.length > 0) {
+      cookie += '; ' + config.join('; ');
+    }
+    cookies.push(cookie);
     // 每次设置都会向数组中添加新内容，然后通过新的响应头来覆盖之前的`Set-Cookie`响应头
+    console.log('cookies', cookies);
     res.setHeader('Set-Cookie', cookies);
   };
   if (req.url === '/read') {
@@ -25,6 +30,9 @@ const server = http.createServer((req, res) => {
     // 设置cookie比较麻烦，可以封装一个方法
     res.setCookie('name', 'zs', { maxAge: 10 });
     res.setCookie('age', 10);
+    res.setCookie('say', 'hello');
+    // domain: 可以用来指定可以接受cookie的域名
+    // path：为了发送cookie头，必须在请求URL中存在的URL路径，一般不会有人设置
     // res.setHeader('Set-Cookie', ['name=zs; max-age=10', 'age=10',`hobby=say; expires=${new Date(Date.now() + 10000).toUTCString()}`]);
     res.end('write ok!');
   }
