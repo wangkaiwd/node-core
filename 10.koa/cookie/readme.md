@@ -14,3 +14,6 @@
 ### `cookie`的选项
 * Expires
 * Max-age
+
+### 封装设置和获取`cookie`的方法
+* `res.setCookie`
