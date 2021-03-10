@@ -133,6 +133,8 @@ Application.prototype.createContext = function (req, res) {
 };
 ```
 
+这样用户可以通过`ctx.req,ctx.request.req,ctx.response.req`和`ctx.res,ctx.request.res,ctx.response.res`来调用`Node.js`原生的`req,res`。
+
 在`handleRequest`中会通过`createContext`来创建`ctx`对象，作为回调函数参数传递给用户：
 
 ```javascript
@@ -144,3 +146,84 @@ Application.prototype.handleRequest = function (req, res) {
   res.end();
 };
 ```
+
+这里实现几个`context,request,response`的常用`api`:
+
+* `ctx.request.path`
+* `ctx.response.body`
+* `ctx.path`
+* `ctx.body`
+
+```javascript
+const Koa = require('koa');
+const app = new Koa();
+
+app.use(async ctx => {
+  console.log(ctx.request.path)
+  console.log(ctx.path)
+  ctx.body = 'hello'
+  ctx.response.body += 'world'
+});
+
+app.listen(3000);
+```
+
+在`request.js`中添加如下代码来让它支持`path`属性：
+
+```javascript
+const url = require('url');
+module.exports = {
+  get path () {
+    // 用户通过ctx.request.path来调用，所以this是ctx.request,可以通过ctx.request.req来获取Node.js原生的req对象
+    const { pathname } = url.parse(this.req.url);
+    return pathname;
+  }
+};
+```
+
+在`response.js`中添加如下代码来支持`body`属性：
+
+```javascript
+module.exports = {
+  set body (val) { // ctx.response.body, this => ctx.response
+    // 设置body后将状态码设置为200
+    this.res.statusCode = 200;
+    this._body = val;
+  },
+  get body () { // 返回的是ctx.response上的_body,并不是当前对象中定义的_body
+    return this._body;
+  }
+};
+```
+
+之后在`context.js`中会分别代理`request,response`上的属性和方法：
+
+```javascript
+const context = {};
+module.exports = context;
+
+// 使用Object.defineProperty进行代理
+// 进行了代理
+function defineGetter (target, key) {
+  Object.defineProperty(context, key, {
+    get () {
+      return this[target][key];
+    }
+  });
+}
+
+function defineSetter (target, key) {
+  Object.defineProperty(context, key, {
+    set (value) {
+      this[target][key] = value;
+    }
+  });
+}
+
+defineGetter('request', 'path');
+
+defineGetter('response', 'body');
+defineSetter('response', 'body');
+```
+
+`context.js`通过`Object.defineProperty`中的`get,set`方法实现了对`request`和`response`上属性的代理，这样用户便可以直接通过`ctx`来访问对应的属性和方法，少敲几次键盘。
