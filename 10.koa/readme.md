@@ -49,3 +49,98 @@ app.listen(3000);
 ![](https://raw.githubusercontent.com/wangkaiwd/drawing-bed/master/20210310163112.png)
 
 ### 开始实现
+
+首先我们来实现`Application`文件中的相关逻辑，让它可以支持如下代码的运行：
+
+```javascript
+const Koa = require('koa');
+const app = new Koa();
+
+// 使用Node.js原生的处理请求的方法
+app.use((req, res) => {
+  res.end('Hello World')
+});
+
+// 监听端口
+app.listen(3000);
+```
+
+`Application`中的代码如下：
+
+```javascript
+const http = require('http');
+const context = require('./context');
+const request = require('./request');
+const response = require('./response');
+const Stream = require('stream');
+const EventEmitter = require('events');
+
+function Application () {
+  this.middlewares = [];
+}
+
+Application.prototype.handleRequest = function (req, res) {
+  this.middlewares.forEach(m => m(req, res));
+  res.end();
+};
+
+Application.prototype.listen = function (...args) {
+  const server = http.createServer(this.handleRequest.bind(this));
+  return server.listen(...args);
+};
+
+Application.prototype.use = function (cb) {
+  this.middlewares.push(cb);
+};
+
+module.exports = Application;
+```
+
+`Application`的`listen`方法会通过`Node.js`的`http`模块来创建一个服务器，并且会最终调用`server.listen`通过`...args`来将所有参数传入。这样`Application`
+的实例在调用`listen`时便需要传入和`server.listen`相同的参数。
+
+在`handleRequest`方法中会执行所有`app.use`中传入的回调函数。
+
+### 实现`context,reponse,request`
+
+为了方便用户使用，`koa`对`handleRequest`中传入的`req,res`进行了封装，最终为用户提供了`ctx`对象。
+
+为了防止对象引用之间的修改，每个应用`Application`在实例化的时候都需要创建一个单独的`context,request,response`。
+
+```javascript
+function Application () {
+  this.middlewares = [];
+  // 使用Object.create通过原型链来进行取值，改值的时候只会修改自身属性
+  this.context = Object.create(context);
+  this.request = Object.create(request);
+  this.response = Object.create(response);
+}
+```
+
+在处理请求时，每次请求都会有单独的`context,response,request`，并且它们和`Node.js`原生`req,res`的关系如下：
+
+```javascript
+Application.prototype.createContext = function (req, res) {
+  // 这里访问属性时会通过2层原型链来查找
+  const ctx = Object.create(this.context); // 通过原型来继承context上的方法
+  const request = Object.create(this.request);
+  const response = Object.create(this.response);
+  ctx.request = request;
+  ctx.response = response;
+  ctx.response.req = ctx.request.req = ctx.req = req;
+  ctx.response.res = ctx.request.res = ctx.res = res;
+  return ctx;
+};
+```
+
+在`handleRequest`中会通过`createContext`来创建`ctx`对象，作为回调函数参数传递给用户：
+
+```javascript
+// req,res的功能比较弱，还要单独封装一个ctx变量来做整合，并且为用户提供一些便捷的api
+Application.prototype.handleRequest = function (req, res) {
+  const ctx = this.createContext(req, res);
+  // 这里会是异步函数
+  this.middlewares.forEach(m => m(ctx));
+  res.end();
+};
+```

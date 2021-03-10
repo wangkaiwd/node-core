@@ -3,7 +3,6 @@ const context = require('./context');
 const request = require('./request');
 const response = require('./response');
 const Stream = require('stream');
-const util = require('util');
 const EventEmitter = require('events');
 
 function Application () {
