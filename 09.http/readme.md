@@ -13,6 +13,7 @@
 常用状态码：
 
 * 200 OK
+* 204 No Content
 * 206 Partial Content
 * 304 Not Modified
 * 400 Bad Request: The server could not understand the request due to invalid syntax(请求参数错误)
