@@ -9,7 +9,7 @@ const server = http.createServer((req, res) => {
     res.end(JSON.stringify(result));
   } else if (req.url === '/write') {
     // 设置cookie比较麻烦，可以封装一个方法
-    res.setHeader('Set-Cookie', ['name=zs; max-age=10', 'age=10',`hobby=say; expires=${new Date(Date.now() + 10000).toUTCString()}`]);
+    res.setHeader('Set-Cookie', ['name=zs; max-age=10', 'age=10', `hobby=say; expires=${new Date(Date.now() + 10000).toUTCString()}`]);
     res.end('write ok!');
   }
 });
