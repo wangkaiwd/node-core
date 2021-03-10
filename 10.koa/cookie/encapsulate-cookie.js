@@ -6,6 +6,9 @@ const server = http.createServer((req, res) => {
   res.getCookie = function (name) {
     const cookie = req.headers.cookie;
     const object = querystring.parse(cookie, '; ', '=');
+    if (!name) {
+      return object;
+    }
     return object[name];
   };
   res.setCookie = function (name, value, options = {}) {
@@ -28,7 +31,6 @@ const server = http.createServer((req, res) => {
   if (req.url === '/read') {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     const name = res.getCookie('name');
-    console.log('name', name);
     res.end(name);
   } else if (req.url === '/write') {
     // 设置cookie比较麻烦，可以封装一个方法
