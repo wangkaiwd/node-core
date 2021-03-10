@@ -56,7 +56,6 @@ const server = http.createServer((req, res) => {
   };
   if (req.url === '/visit') {
     let visit = res.getCookie('visit', { signed: true }) || 0;
-    console.log(visit);
     visit++;
     res.setCookie('visit', visit, { signed: true });
     res.setHeader('Content-Type', 'text/html;charset=utf-8');
