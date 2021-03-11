@@ -228,6 +228,11 @@ defineSetter('response', 'body');
 
 `context.js`通过`Object.defineProperty`中的`get,set`方法实现了对`request`和`response`上属性的代理，这样用户便可以直接通过`ctx`来访问对应的属性和方法，少敲几次键盘。
 
-### 处理不同类型的`ctx.body`
+在`koa`中，对`ctx.body`的以下几种类型进行了处理，方便用户为客户端返回数据：
+
+* Buffer
+* String
+* Stream
+* Object
 
 ### 实现中间件逻辑
