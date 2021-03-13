@@ -338,3 +338,9 @@ app.listen(PORT, () => {
 
 `koa`中间件的执行流程如下：
 ![](https://raw.githubusercontent.com/wangkaiwd/drawing-bed/master/20210314002155.png)
+
+### 错误处理
+
+### 写在最后
+
+本文讲解了`koa`源码中的一些核心逻辑，了解这些知识后，在使用`koa`时对它的`API`和中间件执行逻辑等将会更进一步的理解，更加得心应手。
