@@ -11,21 +11,16 @@ const context = {
 };
 module.exports = context;
 
-// 使用Object.defineProperty进行代理
-// 进行了代理
+// 相当于使用Object.defineProperty设置get和set方法
 function defineGetter (target, key) {
-  Object.defineProperty(context, key, {
-    get () {
-      return this[target][key];
-    }
+  context.__defineGetter__(key, function () {
+    return this[target][key];
   });
 }
 
 function defineSetter (target, key) {
-  Object.defineProperty(context, key, {
-    set (value) {
-      this[target][key] = value;
-    }
+  context.__defineSetter__(key, function (value) {
+    this[target][key] = value;
   });
 }
 

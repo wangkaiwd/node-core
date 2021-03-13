@@ -1,5 +1,5 @@
-const Koa = require('../lib/application');
-// const Koa = require('koa');
+// const Koa = require('../lib/application');
+const Koa = require('koa');
 const app = new Koa();
 const path = require('path');
 const { createReadStream } = require('fs');

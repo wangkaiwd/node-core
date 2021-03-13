@@ -1,6 +1,7 @@
 module.exports = {
   _body: '',
   set body (val) { // ctx.response.body, this => ctx.response
+    if (val == null) {return;}
     this.res.statusCode = 200;
     this._body = val;
   },

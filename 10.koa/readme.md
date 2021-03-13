@@ -186,6 +186,7 @@ module.exports = {
 ```javascript
 module.exports = {
   set body (val) { // ctx.response.body, this => ctx.response
+    if (val == null) {return;}
     // 设置body后将状态码设置为200
     this.res.statusCode = 200;
     this._body = val;
@@ -202,21 +203,16 @@ module.exports = {
 const context = {};
 module.exports = context;
 
-// 使用Object.defineProperty进行代理
-// 进行了代理
+// 相当于使用Object.defineProperty设置get和set方法
 function defineGetter (target, key) {
-  Object.defineProperty(context, key, {
-    get () {
-      return this[target][key];
-    }
+  context.__defineGetter__(key, function () {
+    return this[target][key];
   });
 }
 
 function defineSetter (target, key) {
-  Object.defineProperty(context, key, {
-    set (value) {
-      this[target][key] = value;
-    }
+  context.__defineSetter__(key, function (value) {
+    this[target][key] = value;
   });
 }
 
@@ -228,11 +224,34 @@ defineSetter('response', 'body');
 
 `context.js`通过`Object.defineProperty`中的`get,set`方法实现了对`request`和`response`上属性的代理，这样用户便可以直接通过`ctx`来访问对应的属性和方法，少敲几次键盘。
 
-在`koa`中，对`ctx.body`的以下几种类型进行了处理，方便用户为客户端返回数据：
+在`koa`中，对`ctx.body`的类型进行处理，方便用户为客户端返回数据：
 
-* Buffer
-* String
-* Stream
-* Object
+```javascript
+Application.prototype.handleRequest = function (req, res) {
+  const ctx = this.createContext(req, res);
+  // 状态码默认为404，在为ctx.body设置值后设置为200
+  res.statusCode = 404;
+  // 这里会是异步函数
+  this.middlewares.forEach(m => m(ctx));
+  // 执行完函数后，手动将ctx.body用res.end进行返回
+  if (typeof ctx.body === 'string' || Buffer.isBuffer(ctx.body)) {
+    res.end(ctx.body);
+  } else if (ctx.body instanceof Stream) { // 流
+    // 源码会直接将流进行下载，会设置: content-position响应头
+    ctx.body.pipe(res);
+  } else if (typeof ctx.body === 'object' && ctx.body !== null) { // 
+    res.setHeader('Content-Type', 'application/json;charset=utf8');
+    res.end(JSON.stringify(ctx.body));
+  } else { // null,undefined
+    res.end('Not Found');
+  }
+};
+```
+
+* Buffer | String: 通过`res.end`将`ctx.body`返回给客户端
+* Stream: 会将可读流通过`pipe`方法写入到可写流`res`中返回给客户端，需要用户来手动指定对应请求头的`Content-Type`
+* Object: 通过`JSON.stringify`将对象转换为`JSON`字符串返回
+
+如果`body`没有设置值或者设置值为`null`或`undefined`将返回客户端`Not Found`，响应状态码为`404`
 
 ### 实现中间件逻辑
