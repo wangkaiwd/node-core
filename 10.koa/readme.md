@@ -280,4 +280,61 @@ Application.prototype.compose = function (ctx) {
   // 默认先执行第1个，然后通过用户来手动调用next来执行接下来的函数
   return dispatch();
 };
+
+Application.prototype.handleRequest = function (req, res) {
+  const ctx = this.createContext(req, res);
+  res.statusCode = 404;
+  // 这里会是异步函数
+  // this.middlewares.forEach(m => m(ctx));
+  this.compose(ctx).then(() => {
+    // 执行完函数后，根据不同类型来手动将ctx.body用res.end进行返回
+    // some code...
+  })
+};
 ```
+
+`compose`函数定义了`dispatch`函数，并将`dispatch`执行后的`promise`返回。此时`dispatch`的执行会让用户传入的第一个中间件执行，中间件中的`next`参数就是这里的`dispatch`。
+
+当用户调用`next`时，便会调用`compose`中的`dispatch`方法，此时会过`i`来获取下一个`middlewares`数组中的中间件并执行，再将`dispatch`传递给用户，重复这个过程，直到处理完所有的中间件函数。
+
+了解了中间件的实现逻辑后，我们来看下面的一个例子：
+
+```javascript
+const Koa = require('koa');
+const app = new Koa();
+const PORT = 3000;
+const sleep = function (delay) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(); // 执行时才会异步的(微任务)执行.then中的回调
+      console.log('sleep');
+    }, delay);
+  });
+};
+
+app.use(async (ctx, next) => {
+  console.log(1);
+  await next(); // next 是 promise，要等到promise执行then方法中的回调时才会执行之后代码
+  console.log(2);
+});
+
+app.use(async (ctx, next) => {
+  console.log(3);
+  await sleep(1000); // promise.then(() => {next(); console.log(4)})
+  await next();
+  console.log(4);
+});
+
+app.use((ctx, next) => {
+  console.log(5);
+});
+
+app.listen(PORT, () => {
+  console.log(`server is listening on port ${PORT}`);
+});
+```
+
+当中间中有异步逻辑时，一定要使用`await`或将返回对应的`promise`。这样`Promise.resolve`便必须等到所有的`promise`都`resolved`或者`rejected`之后才会继续执行。
+
+`koa`中间件的执行流程如下：
+![](https://raw.githubusercontent.com/wangkaiwd/drawing-bed/master/20210314002155.png)

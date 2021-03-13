@@ -20,7 +20,7 @@ app.use(async (ctx, next) => {
 app.use(async (ctx, next) => {
   console.log(3);
   await sleep(1000); // promise.then(() => {next(); console.log(4)})
-  next();
+  await next();
   console.log(4);
 });
 
