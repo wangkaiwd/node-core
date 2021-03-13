@@ -255,3 +255,29 @@ Application.prototype.handleRequest = function (req, res) {
 如果`body`没有设置值或者设置值为`null`或`undefined`将返回客户端`Not Found`，响应状态码为`404`
 
 ### 实现中间件逻辑
+
+在上边的代码中，我们已经处理好`context,request,response`之间的关系，下面我们来实现`koa`中比较重要的功能：中间件。
+
+`koa`中`.use`方法中传入的函数便是中间件，它接收俩个参数：`ctx`,`next`。需要注意的是，这里的`next`是一个函数，它的返回值为`promise`。
+
+```javascript
+Application.prototype.compose = function (ctx) {
+  let i = 0;
+
+  const dispatch = () => {
+    if (i === this.middlewares.length) { // 如果执行完所有的中间件函数
+      return Promise.resolve(); // 最终返回value为undefined的Promise
+    }
+    const middleware = this.middlewares[i];
+    i++;
+    try {
+      // Promise.resolve会等到middleware的
+      return Promise.resolve(middleware(ctx, dispatch));
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  };
+  // 默认先执行第1个，然后通过用户来手动调用next来执行接下来的函数
+  return dispatch();
+};
+```
