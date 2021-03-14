@@ -117,7 +117,7 @@ function Application () {
 }
 ```
 
-在处理请求时，每次请求都会有单独的`context,response,request`，并且它们和`Node.js`原生`req,res`的关系如下：
+在处理请求时，每次请求也都会有单独的`context,response,request`，并且它们和`Node.js`原生`req,res`的关系如下：
 
 ```javascript
 Application.prototype.createContext = function (req, res) {
@@ -147,7 +147,7 @@ Application.prototype.handleRequest = function (req, res) {
 };
 ```
 
-这里实现几个`context,request,response`的常用`api`:
+下面我们实现几个`context,request,response`中常用`api`，理解它们的代码思路:
 
 * `ctx.request.path`
 * `ctx.response.body`
@@ -197,7 +197,7 @@ module.exports = {
 };
 ```
 
-之后在`context.js`中会分别代理`request,response`上的属性和方法：
+之后在`context.js`中会分别代理`request,response`上对应的属性和方法：
 
 ```javascript
 const context = {};
@@ -222,9 +222,9 @@ defineGetter('response', 'body');
 defineSetter('response', 'body');
 ```
 
-`context.js`通过`Object.defineProperty`中的`get,set`方法实现了对`request`和`response`上属性的代理，这样用户便可以直接通过`ctx`来访问对应的属性和方法，少敲几次键盘。
+`context.js`通过`__defineGetter__`和`__defineSetter__`实现了对`request`和`response`上属性的代理，这样用户便可以直接通过`ctx`来访问对应的属性和方法，少敲几次键盘。
 
-在`koa`中，对`ctx.body`的类型进行处理，方便用户为客户端返回数据：
+在`koa`中，对`ctx.body`的类型也进行了处理，方便用户为客户端返回数据：
 
 ```javascript
 Application.prototype.handleRequest = function (req, res) {
@@ -266,12 +266,11 @@ Application.prototype.compose = function (ctx) {
 
   const dispatch = () => {
     if (i === this.middlewares.length) { // 如果执行完所有的中间件函数
-      return Promise.resolve(); // 最终返回value为undefined的Promise
+      return Promise.resolve(); // 最终返回value为undefined的promise
     }
     const middleware = this.middlewares[i];
     i++;
     try {
-      // Promise.resolve会等到middleware的
       return Promise.resolve(middleware(ctx, dispatch));
     } catch (e) {
       return Promise.reject(e);
@@ -293,9 +292,9 @@ Application.prototype.handleRequest = function (req, res) {
 };
 ```
 
-`compose`函数定义了`dispatch`函数，并将`dispatch`执行后的`promise`返回。此时`dispatch`的执行会让用户传入的第一个中间件执行，中间件中的`next`参数就是这里的`dispatch`。
+`compose`函数中定义了`dispatch`函数，并将`dispatch`执行后的`promise`返回。此时`dispatch`的执行会让用户传入的第一个中间件执行，中间件中的`next`参数就是这里的`dispatch`。
 
-当用户调用`next`时，便会调用`compose`中的`dispatch`方法，此时会过`i`来获取下一个`middlewares`数组中的中间件并执行，再将`dispatch`传递给用户，重复这个过程，直到处理完所有的中间件函数。
+当用户调用`next`时，便会调用`compose`中的`dispatch`方法，此时会通过`i`来获取下一个`middlewares`数组中的中间件并执行，再将`dispatch`传递给用户，重复这个过程，直到处理完所有的中间件函数。
 
 了解了中间件的实现逻辑后，我们来看下面的一个例子：
 
@@ -334,7 +333,7 @@ app.listen(PORT, () => {
 });
 ```
 
-当中间中有异步逻辑时，一定要使用`await`或将返回对应的`promise`。这样`Promise.resolve`便必须等到所有的`promise`都`resolved`或者`rejected`之后才会继续执行。
+当中间中有异步逻辑时，一定要使用`await`或返回对应的`promise`。这样`Promise.resolve`便必须等到所有的`promise`都`resolved`或者`rejected`之后才会继续执行。
 
 `koa`中间件的执行流程如下：
 ![](https://raw.githubusercontent.com/wangkaiwd/drawing-bed/master/20210314002155.png)
@@ -373,8 +372,8 @@ Application.prototype.handleRequest = function (req, res) {
 };
 ```
 
-在中间执行过程中如果出现了错误，那么便会返回`rejected`状态的`promise`，此时可以通过`promise`的`catch`方法来捕获错误，并通过继承自`events`的`emit`方法来通知`error`监听的函数执行：
-> `Promise`在执行过程中如果出现错误，会通过`reject(err)`返回一个失败状态的`promise`
+在中间执行过程中如果出现了错误，那么便会返回`rejected`状态的`promise`，此时可以通过`promise`的`catch`方法来捕获错误，并通过继承自`events`的`emit`方法来通知`error`事件对应的函数执行：
+> `Promise`在执行过程中如果出现错误，会通过`try{ // some code }catch(e){ reject(err) }`返回一个失败状态的`promise`
 
 ```javascript
 const Koa = require('../lib/application');
