@@ -50,7 +50,7 @@ app.listen(3000);
 * `request`: 导出一个对象，封装了`Node.js`原生`req`的方法
 * `response`: 导出一个对象，封装了`Node.js`原生`res`的方法
 
-用户在使用时会通过`package.json`中的`main`字段来引入`Application`类来创建实例：
+用户在使用时会通过`package.json`中的`main`字段来引入`Application`类创建实例：
 ![](https://raw.githubusercontent.com/wangkaiwd/drawing-bed/master/20210310163112.png)
 
 ### 开始实现
@@ -74,11 +74,6 @@ app.listen(3000);
 
 ```javascript
 const http = require('http');
-const context = require('./context');
-const request = require('./request');
-const response = require('./response');
-const Stream = require('stream');
-const EventEmitter = require('events');
 
 function Application () {
   this.middlewares = [];
@@ -104,13 +99,13 @@ module.exports = Application;
 `Application`的`listen`方法会通过`Node.js`的`http`模块来创建一个服务器，并且会最终调用`server.listen`通过`...args`来将所有参数传入。这样`Application`
 的实例在调用`listen`时便需要传入和`server.listen`相同的参数。
 
-在`handleRequest`方法中会执行所有`app.use`中传入的回调函数。
+在`handleRequest`方法中会执行所有`app.use`中传入的回调函数，也就是`koa`中的中间件。
 
 ### 实现`context,reponse,request`
 
 为了方便用户使用，`koa`对`handleRequest`中传入的`req,res`进行了封装，最终为用户提供了`ctx`对象。
 
-为了防止对象引用之间的修改，每个应用`Application`在实例化的时候都需要创建一个单独的`context,request,response`。
+由于对象是引用类型，为了防止对象引用之间相互修改，每个应用`Application`在实例化的时候都需要创建一个单独的`context,request,response`。
 
 ```javascript
 function Application () {
