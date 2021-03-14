@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<button id="a">promise a</button>
+<button id="b">promise b</button>
+<div id="list"></div>
+<script>
+  // 搜索：先搜索a,然后再搜索ab
+  // 如何控制搜索结果一定展示的是ab的结果
+  let p = Promise.resolve();
+
+  function getAList () {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(['aa', 'ab']);
+      }, 3000);
+    });
+  }
+
+  function getBList () {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(['ab']);
+      }, 1000);
+    });
+  }
+
+  const elA = document.getElementById('a');
+  const elB = document.getElementById('b');
+  const onSuccess = (response) => {
+    elList.innerHTML = '';
+    const textNode = document.createTextNode(JSON.stringify(response));
+    elList.appendChild(textNode);
+  };
+  const elList = document.getElementById('list');
+  elA.addEventListener('click', () => {
+    p = p.then(getAList).then((val) => onSuccess(val));
+  });
+  elB.addEventListener('click', () => {
+    p = p.then(getBList).then((val) => onSuccess(val));
+  });
+
+  // 最好的方案：再重新发起请求之前，先把之前的请求取消
+  // 目前的实现方案：保证在前一个Promise执行之后再执行下一个Promise
+
+  // 目标：实现一个功能完善的搜索功能
+
+</script>
+</body>
+</html>
