@@ -1,5 +1,10 @@
 ## 深入源码：手写一个`koa`
 
+文章资料
+
+* [源代码]()
+* [`koa`代码仓库]()
+
 ### 前言：了解`koa`
 
 `koa`是使用`Node.js`进行服务端开发的常用框架，它帮用户封装了原生`Node.js`中`req`和`res`，使用户可以更方便的调用`API`来实现对应的功能。
@@ -341,6 +346,71 @@ app.listen(PORT, () => {
 
 ### 错误处理
 
+`koa`的错误处理是通过继承`events`来实现的：
+
+```javascript
+const EventEmitter = require('events');
+
+function Application () {
+  // 继承属性
+  EventEmitter.call(this);
+  // omit some code...
+}
+
+// 继承原型上的方法
+Application.prototype = Object.create(EventEmitter.prototype);
+Application.prototype.constructor = Application;
+
+Application.prototype.handleRequest = function (req, res) {
+  const ctx = this.createContext(req, res);
+  res.statusCode = 404;
+  // 这里会是异步函数
+  // this.middlewares.forEach(m => m(ctx));
+  this.compose(ctx).then(() => {
+    // some code
+  }).catch((err) => { // 在catch方法中处理错误
+    res.statusCode = 500;
+    ctx.body = 'Server Internal Error!';
+    res.end(ctx.body);
+    // emit error 事件，需要用户通过on('error',fn)来进行错误事件的订阅
+    this.emit('error', err, ctx);
+  });
+};
+```
+
+在中间执行过程中如果出现了错误，那么便会返回`rejected`状态的`promise`，此时可以通过`promise`的`catch`方法来捕获错误，并通过继承自`events`的`emit`方法来通知`error`监听的函数执行：
+> `Promise`在执行过程中如果出现错误，会通过`reject(err)`返回一个失败状态的`promise`
+
+```javascript
+const Koa = require('../lib/application');
+const app = new Koa();
+const PORT = 3000;
+app.use(async (ctx, next) => {
+  throw Error('I am an error message');
+  console.log(1);
+  await next();
+});
+
+app.use((ctx, next) => {
+  ctx.body = 'Hello Koa';
+});
+
+app.on('error', (e, ctx) => {
+  console.log('ctx', e);
+});
+app.listen(PORT, () => {
+  console.log(`server is listening on ${PORT}`);
+});
+```
+
+用户在使用时需要通过`on`方法来监听`error`事件，这样在中间件执行的过程中出现错误时，就会通过`emit('error')`来通知`error`绑定的函数执行，进行错误处理。
+
 ### 写在最后
 
-本文讲解了`koa`源码中的一些核心逻辑，了解这些知识后，在使用`koa`时对它的`API`和中间件执行逻辑等将会更进一步的理解，更加得心应手。
+本文讲解了`koa`源码中的一些核心逻辑：
+
+* 提供`ctx`变量，为用户提供更加简洁的`api`
+* 通过中间件来将一个请求过程中处理的逻辑进行拆分
+* 通过监听`error`事件来进行错误处理
+
+在了解这些知识后，我们便能更加熟练的运用`koa`来实现各种需求，也可以借鉴它的实现思路来自己实现一个类似的工具。
