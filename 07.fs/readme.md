@@ -13,7 +13,6 @@
 * fs.write
 * fs.close
 * [file descriptor](https://nodejs.org/api/fs.html#fs_file_descriptors)
-
 * fs.readFile: If no encoding is specified, then the raw buffer is returned
 * fs.writeFile: Encoding is utf8 by default
 
