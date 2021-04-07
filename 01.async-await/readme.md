@@ -14,6 +14,7 @@ generator function execute order: switch case 配合指针移动来执行每一�
 ### async await
 
 * convert generator function to async await to implement demo again
+* **try catch can capture reason of rejected promise**
 
 ### question
 
